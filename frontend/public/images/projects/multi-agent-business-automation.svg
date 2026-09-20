@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Multi-agent workflow concept preview">
+  <rect width="800" height="500" fill="#0B1020"/>
+  <rect x="24" y="24" width="752" height="452" rx="18" fill="#11182A" stroke="#8B5CF6" stroke-opacity="0.25"/>
+  <circle cx="52" cy="52" r="6" fill="#8B5CF6"/>
+  <circle cx="74" cy="52" r="6" fill="#38BDF8"/>
+  <circle cx="96" cy="52" r="6" fill="#94A3B8"/>
+  <rect x="56" y="92" width="160" height="70" rx="12" fill="#050816" stroke="#38BDF8" stroke-opacity="0.35"/>
+  <rect x="320" y="92" width="160" height="70" rx="12" fill="#050816" stroke="#8B5CF6" stroke-opacity="0.45"/>
+  <rect x="584" y="92" width="160" height="70" rx="12" fill="#050816" stroke="#38BDF8" stroke-opacity="0.35"/>
+  <rect x="188" y="230" width="160" height="70" rx="12" fill="#050816" stroke="#8B5CF6" stroke-opacity="0.3"/>
+  <rect x="452" y="230" width="160" height="70" rx="12" fill="#050816" stroke="#38BDF8" stroke-opacity="0.3"/>
+  <rect x="320" y="360" width="160" height="70" rx="12" fill="#050816" stroke="#8B5CF6" stroke-opacity="0.5"/>
+  <path d="M136 162 L400 162 L400 230" fill="none" stroke="#38BDF8" stroke-opacity="0.4" stroke-width="2"/>
+  <path d="M400 162 L664 162 L664 230" fill="none" stroke="#8B5CF6" stroke-opacity="0.4" stroke-width="2"/>
+  <path d="M268 300 L400 360" fill="none" stroke="#38BDF8" stroke-opacity="0.35" stroke-width="2"/>
+  <path d="M532 300 L400 360" fill="none" stroke="#8B5CF6" stroke-opacity="0.35" stroke-width="2"/>
+  <text x="76" y="133" fill="#F8FAFC" font-family="sans-serif" font-size="16">Research</text>
+  <text x="360" y="133" fill="#F8FAFC" font-family="sans-serif" font-size="16">Supervisor</text>
+  <text x="628" y="133" fill="#F8FAFC" font-family="sans-serif" font-size="16">CRM</text>
+  <text x="228" y="271" fill="#F8FAFC" font-family="sans-serif" font-size="16">Email</text>
+  <text x="492" y="271" fill="#F8FAFC" font-family="sans-serif" font-size="16">Validator</text>
+  <text x="364" y="401" fill="#F8FAFC" font-family="sans-serif" font-size="16">Output</text>
+</svg>

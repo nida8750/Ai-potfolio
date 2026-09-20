@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="CRM automation pipeline concept preview">
+  <rect width="800" height="500" fill="#0B1020"/>
+  <rect x="40" y="70" width="180" height="90" rx="16" fill="#11182A" stroke="#38BDF8" stroke-opacity="0.35"/>
+  <rect x="310" y="70" width="180" height="90" rx="16" fill="#11182A" stroke="#8B5CF6" stroke-opacity="0.4"/>
+  <rect x="580" y="70" width="180" height="90" rx="16" fill="#11182A" stroke="#38BDF8" stroke-opacity="0.35"/>
+  <rect x="170" y="250" width="180" height="90" rx="16" fill="#11182A" stroke="#8B5CF6" stroke-opacity="0.3"/>
+  <rect x="450" y="250" width="180" height="90" rx="16" fill="#11182A" stroke="#38BDF8" stroke-opacity="0.3"/>
+  <rect x="310" y="380" width="180" height="70" rx="16" fill="#8B5CF6" fill-opacity="0.18" stroke="#8B5CF6" stroke-opacity="0.5"/>
+  <path d="M220 115 H310" stroke="#38BDF8" stroke-width="2"/>
+  <path d="M490 115 H580" stroke="#8B5CF6" stroke-width="2"/>
+  <path d="M400 160 V250" stroke="#38BDF8" stroke-width="2"/>
+  <path d="M260 340 H400 V380" stroke="#8B5CF6" stroke-width="2"/>
+  <path d="M540 340 H400" stroke="#38BDF8" stroke-width="2"/>
+  <text x="70" y="122" fill="#F8FAFC" font-family="sans-serif" font-size="18">Webhook</text>
+  <text x="352" y="122" fill="#F8FAFC" font-family="sans-serif" font-size="18">Router</text>
+  <text x="628" y="122" fill="#F8FAFC" font-family="sans-serif" font-size="18">CRM</text>
+  <text x="214" y="302" fill="#F8FAFC" font-family="sans-serif" font-size="18">Follow-up</text>
+  <text x="500" y="302" fill="#F8FAFC" font-family="sans-serif" font-size="18">Owner</text>
+  <text x="360" y="422" fill="#F8FAFC" font-family="sans-serif" font-size="18">Synced</text>
+</svg>
