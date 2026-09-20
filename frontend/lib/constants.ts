@@ -1,19 +1,15 @@
 export const SITE_NAME = "Nida AI";
+export const SITE_DESCRIPTION =
+  "I build intelligent agents, RAG systems and automation workflows that help businesses automate repetitive work and build intelligent digital products.";
+export const SITE_YEAR = 2026;
+
 export const PERSON_NAME = "Nida Asghar";
 export const ROLE = "AI Agent & Automation Engineer";
 export const TAGLINE = "Building intelligent systems with AI.";
-
 export const HERO_GREETING = `Hi, I'm ${PERSON_NAME}`;
-export const HERO_COPY =
-  "I build intelligent agents, RAG systems and automation workflows that help businesses automate repetitive work and build intelligent digital products.";
-
+export const HERO_COPY = SITE_DESCRIPTION;
 export const RESUME_PATH = "/resume/resume.pdf";
 export const RESUME_FILENAME = "Nida-Asghar-Resume.pdf";
-
-export const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export const HERO_STATS = [
   { label: "4+ Real Projects" },

@@ -10,12 +10,19 @@ export function GlowCard({ children, className }: GlowCardProps) {
   return (
     <div
       className={cn(
-        "group relative rounded-2xl border border-white/10 bg-surface/90 p-6 transition-transform duration-300",
-        "hover:-translate-y-1 hover:border-purple/50 hover:shadow-[0_0_0_1px_rgb(139_92_246_/_0.25),0_20px_50px_rgb(139_92_246_/_0.12)]",
+        "relative overflow-hidden rounded-2xl border border-white/10 bg-surface/90 p-6",
         className,
       )}
     >
-      {children}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/20 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-12 -left-8 h-28 w-28 rounded-full bg-accent/10 blur-3xl"
+      />
+      <div className="relative">{children}</div>
     </div>
   );
 }

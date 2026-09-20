@@ -8,7 +8,10 @@ export function GridBackground({ className }: GridBackgroundProps) {
   return (
     <div
       aria-hidden="true"
-      className={cn("pointer-events-none absolute inset-0 grid-fade", className)}
+      className={cn(
+        "pointer-events-none absolute inset-0 grid-fade",
+        className,
+      )}
     />
   );
 }

@@ -8,3 +8,8 @@ export const navigation: NavItem[] = [
   { label: "About", href: "#about" },
   { label: "Contact", href: "#contact" },
 ];
+
+export const hireCta: NavItem = {
+  label: "Hire Me",
+  href: "#contact",
+};
