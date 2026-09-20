@@ -37,6 +37,17 @@ type ButtonAsLink = SharedProps &
 
 export type ButtonProps = ButtonAsButton | ButtonAsLink;
 
+function omitKeys<T extends object, K extends keyof T>(
+  obj: T,
+  keys: readonly K[],
+): Omit<T, K> {
+  const clone = { ...obj };
+  for (const key of keys) {
+    delete clone[key];
+  }
+  return clone;
+}
+
 function buttonClasses(
   variant: Variant,
   size: Size,
@@ -51,11 +62,16 @@ function buttonClasses(
 }
 
 export function Button(props: ButtonProps) {
-  const { children, className, variant = "primary", size = "md" } = props;
-  const classes = buttonClasses(variant, size, className);
+  const variant = props.variant ?? "primary";
+  const size = props.size ?? "md";
+  const classes = buttonClasses(variant, size, props.className);
 
   if ("href" in props && typeof props.href === "string") {
-    const { href, variant: _variant, size: _size, ...linkProps } = props;
+    const { href, children, ...linkProps } = omitKeys(props, [
+      "variant",
+      "size",
+      "className",
+    ]);
     return (
       <a href={href} className={classes} {...linkProps}>
         {children}
@@ -63,7 +79,11 @@ export function Button(props: ButtonProps) {
     );
   }
 
-  const { variant: _variant, size: _size, ...buttonProps } = props;
+  const { children, ...buttonProps } = omitKeys(props, [
+    "variant",
+    "size",
+    "className",
+  ]);
   return (
     <button className={classes} {...buttonProps}>
       {children}

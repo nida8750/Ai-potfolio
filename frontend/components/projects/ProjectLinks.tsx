@@ -1,4 +1,4 @@
-import { ArrowUpRight, Github } from "lucide-react";
+import { ArrowUpRight, FolderGit2 } from "lucide-react";
 
 interface ProjectLinksProps {
   githubUrl?: string;
@@ -18,7 +18,7 @@ export function ProjectLinks({
           href={githubUrl}
           className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-ink"
         >
-          <Github className="h-4 w-4" aria-hidden="true" />
+          <FolderGit2 className="h-4 w-4" aria-hidden="true" />
           GitHub
         </a>
       ) : null}
