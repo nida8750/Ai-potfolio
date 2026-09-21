@@ -116,6 +116,59 @@ export function overlayMotion(reduceMotion: boolean | null) {
   };
 }
 
+export function revealMotion(
+  reduceMotion: boolean | null,
+  options?: {
+    x?: number;
+    y?: number;
+    scale?: number;
+    delay?: number;
+    duration?: number;
+  },
+) {
+  if (reduceMotion) {
+    return {
+      initial: { opacity: 1, x: 0, y: 0, scale: 1 },
+      animate: { opacity: 1, x: 0, y: 0, scale: 1 },
+      transition: { duration: 0 },
+    };
+  }
+
+  return {
+    initial: {
+      opacity: 0,
+      x: options?.x ?? 0,
+      y: options?.y ?? 14,
+      scale: options?.scale ?? 1,
+    },
+    animate: { opacity: 1, x: 0, y: 0, scale: 1 },
+    transition: {
+      duration: options?.duration ?? 0.4,
+      delay: options?.delay ?? 0,
+      ease: easeOut,
+    },
+  };
+}
+
+export function floatMotion(reduceMotion: boolean | null, delay = 0) {
+  if (reduceMotion) {
+    return {
+      animate: { y: 0, opacity: 1 },
+      transition: { duration: 0 },
+    };
+  }
+
+  return {
+    animate: { y: [0, -8, 0], opacity: 1 },
+    transition: {
+      duration: 5.5,
+      delay,
+      repeat: Infinity,
+      ease: "easeInOut" as const,
+    },
+  };
+}
+
 export function withReducedMotion<T>(
   variant: T,
   reduceMotion: boolean | null,

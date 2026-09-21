@@ -7,7 +7,8 @@ export const PERSON_NAME = "Nida Asghar";
 export const ROLE = "AI Agent & Automation Engineer";
 export const TAGLINE = "Building intelligent systems with AI.";
 export const HERO_GREETING = `Hi, I'm ${PERSON_NAME}`;
-export const HERO_COPY = SITE_DESCRIPTION;
+export const HERO_COPY =
+  "Build intelligent AI systems, autonomous agents, RAG knowledge systems, workflow automations, and voice AI solutions for real-world use cases.";
 export const RESUME_PATH = "/resume/resume.pdf";
 export const RESUME_FILENAME = "Nida-Asghar-Resume.pdf";
 
