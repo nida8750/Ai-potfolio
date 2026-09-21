@@ -1,5 +1,21 @@
 import type { StoredProject } from "@/types/project";
 import type { StoredService } from "@/types/service";
+import type { PublicUser, UserProfile } from "@/types/user";
+
+/** Drops the Cognito subject before a profile is sent to the browser. */
+export function toPublicUser(profile: UserProfile): PublicUser {
+  return {
+    id: profile.id,
+    email: profile.email,
+    name: profile.name,
+    phone: profile.phone,
+    role: profile.role,
+    avatarUrl: profile.avatarUrl,
+    status: profile.status,
+    createdAt: profile.createdAt,
+    updatedAt: profile.updatedAt,
+  };
+}
 
 export interface PublicService {
   id: string;

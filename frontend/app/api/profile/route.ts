@@ -1,5 +1,6 @@
 import { handleRoute, noStore, parseBody } from "@/lib/api/route";
 import { requireAuth } from "@/lib/auth/server";
+import { toPublicUser } from "@/lib/data/presenters";
 import { repository } from "@/lib/data/repository";
 import { jsonError, jsonSuccess } from "@/lib/security/http";
 import { sanitizeText } from "@/lib/security/sanitize";
@@ -12,8 +13,7 @@ export async function GET(request: Request) {
     if (!profile) {
       return jsonError("NOT_FOUND", "Profile not found.", 404);
     }
-    const { cognitoSub: _cognitoSub, ...publicProfile } = profile;
-    return noStore(jsonSuccess({ profile: publicProfile }));
+    return noStore(jsonSuccess({ profile: toPublicUser(profile) }));
   });
 }
 
@@ -34,8 +34,7 @@ export async function PATCH(request: Request) {
         return jsonError("NOT_FOUND", "Profile not found.", 404);
       }
 
-      const { cognitoSub: _cognitoSub, ...publicProfile } = updated;
-      return jsonSuccess({ profile: publicProfile });
+      return jsonSuccess({ profile: toPublicUser(updated) });
     },
   );
 }
