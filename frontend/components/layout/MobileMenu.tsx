@@ -84,7 +84,7 @@ export function MobileMenu({ open, onClose, menuId }: MobileMenuProps) {
       document.documentElement.style.overflow = previousHtmlOverflow;
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [onClose, open]);
+  }, [menuId, onClose, open]);
 
   if (!isClient || !open) {
     return null;
