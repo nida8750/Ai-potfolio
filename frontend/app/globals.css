@@ -74,9 +74,18 @@ body::before {
   background-size: auto, auto, 64px 64px, 64px 64px;
 }
 
-body > * {
+#main {
   position: relative;
   z-index: 1;
+}
+
+#home,
+#services,
+#agents,
+#projects,
+#about,
+#contact {
+  scroll-margin-top: 5.5rem;
 }
 
 img,

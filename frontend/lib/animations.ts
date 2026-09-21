@@ -98,6 +98,24 @@ export function motionSafe(reduceMotion: boolean | null) {
   return { initial: "hidden" as const, animate: "visible" as const };
 }
 
+export function overlayMotion(reduceMotion: boolean | null) {
+  if (reduceMotion) {
+    return {
+      initial: { opacity: 1, x: 0 },
+      animate: { opacity: 1, x: 0 },
+      exit: { opacity: 1, x: 0 },
+      transition: { duration: 0 },
+    };
+  }
+
+  return {
+    initial: { opacity: 0, x: 20 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: 16 },
+    transition: { duration: 0.22, ease: easeOut },
+  };
+}
+
 export function withReducedMotion<T>(
   variant: T,
   reduceMotion: boolean | null,
