@@ -71,10 +71,10 @@ export function Hero() {
       <Container className="relative grid items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-10">
         <div className="min-w-0">
           <motion.p
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/60 px-3 py-1.5 text-sm font-medium text-accent backdrop-blur-sm"
+            className="inline-flex items-center gap-2 text-base font-medium text-foreground"
             {...revealMotion(reduceMotion, { delay: 0.05, y: 10 })}
           >
-            <Sparkles className="h-4 w-4" aria-hidden="true" />
+            <Sparkles className="h-4 w-4 text-accent" aria-hidden="true" />
             {HERO_GREETING}
           </motion.p>
 
