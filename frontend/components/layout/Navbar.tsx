@@ -19,39 +19,23 @@ export function Navbar() {
 
   useEffect(() => {
     function onScroll() {
-      const next = window.scrollY > 8;
+      const next = window.scrollY > 12;
       setScrolled((prev) => (prev === next ? prev : next));
+
+      const offset = 120;
+      let current = navigation[0]?.href ?? "#home";
+      for (const item of navigation) {
+        const section = document.getElementById(item.href.slice(1));
+        if (section && section.getBoundingClientRect().top <= offset) {
+          current = item.href;
+        }
+      }
+      setActiveHref((prev) => (prev === current ? prev : current));
     }
 
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    const sections = navigation
-      .map((item) => document.getElementById(item.href.slice(1)))
-      .filter((section): section is HTMLElement => section !== null);
-
-    if (sections.length === 0) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        const id = visible[0]?.target.id;
-        if (id) {
-          setActiveHref(`#${id}`);
-        }
-      },
-      { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.25, 0.6] },
-    );
-
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -67,8 +51,8 @@ export function Navbar() {
       className={cn(
         "sticky top-0 z-50 border-b backdrop-blur-xl motion-reduce:transition-none",
         scrolled
-          ? "border-white/12 bg-background/85"
-          : "border-transparent bg-background/40",
+          ? "border-white/20 bg-background/95 shadow-[0_10px_30px_rgb(0_0_0_/_0.45)]"
+          : "border-transparent bg-transparent",
       )}
     >
       <Container className="grid h-16 grid-cols-[auto_1fr_auto] items-center gap-3 md:h-[4.5rem]">
@@ -103,9 +87,11 @@ export function Navbar() {
           </ul>
         </nav>
         <div className="flex items-center justify-self-end gap-2">
-          <Button href={hireCta.href} size="sm" className="hidden lg:inline-flex">
-            {hireCta.label}
-          </Button>
+          <span className="hidden lg:inline-flex">
+            <Button href={hireCta.href} size="sm">
+              {hireCta.label}
+            </Button>
+          </span>
           <button
             ref={triggerRef}
             type="button"
