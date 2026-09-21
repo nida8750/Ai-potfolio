@@ -1,13 +1,22 @@
 import { Container } from "@/components/ui/Container";
 import { Hero } from "@/components/sections/Hero";
+import { Services } from "@/components/sections/Services";
 import { navigation } from "@/data/navigation";
+
+const placeholderHrefs = new Set([
+  "#agents",
+  "#projects",
+  "#about",
+  "#contact",
+]);
 
 export default function HomePage() {
   return (
     <main id="main">
       <Hero />
+      <Services />
       {navigation
-        .filter((item) => item.href !== "#home")
+        .filter((item) => placeholderHrefs.has(item.href))
         .map((item) => {
           const id = item.href.slice(1);
           return (

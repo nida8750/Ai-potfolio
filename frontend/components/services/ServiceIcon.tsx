@@ -1,20 +1,25 @@
-import {
-  AudioLines,
-  Bot,
-  Database,
-  Layers,
-  Workflow,
-  type LucideIcon,
-} from "lucide-react";
+import { Bot, Database, Mic, Workflow } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const iconMap: Record<string, LucideIcon> = {
-  agents: Bot,
-  rag: Database,
-  automation: Workflow,
-  voice: AudioLines,
-  stack: Layers,
-};
+function iconFor(name?: string) {
+  const key = name?.trim().toLowerCase() ?? "";
+
+  if (key === "rag" || key === "rag & knowledge systems" || key === "knowledge") {
+    return (
+      <Database aria-hidden="true" className="h-5 w-5" />
+    );
+  }
+
+  if (key === "automation" || key === "business automation") {
+    return <Workflow aria-hidden="true" className="h-5 w-5" />;
+  }
+
+  if (key === "voice" || key === "voice ai") {
+    return <Mic aria-hidden="true" className="h-5 w-5" />;
+  }
+
+  return <Bot aria-hidden="true" className="h-5 w-5" />;
+}
 
 interface ServiceIconProps {
   name?: string;
@@ -22,7 +27,14 @@ interface ServiceIconProps {
 }
 
 export function ServiceIcon({ name, className }: ServiceIconProps) {
-  const Icon = (name && iconMap[name]) || Bot;
-
-  return <Icon aria-hidden="true" className={cn("h-5 w-5", className)} />;
+  return (
+    <span
+      className={cn(
+        "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-primary/25 bg-primary/10 text-primary shadow-[0_0_18px_rgb(139_92_246_/_0.2)]",
+        className,
+      )}
+    >
+      {iconFor(name)}
+    </span>
+  );
 }
