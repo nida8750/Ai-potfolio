@@ -24,7 +24,8 @@ export function CheckoutButton({ orderId, providers }: CheckoutButtonProps) {
         "/api/payments/checkout",
         { json: { orderId, provider } },
       );
-      window.location.href = result.redirectUrl;
+      // Full navigation, not a router push: checkout is hosted by the provider.
+      window.location.assign(result.redirectUrl);
     } catch (caught) {
       setError(errorMessage(caught));
       setPending(null);
