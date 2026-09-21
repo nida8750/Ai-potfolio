@@ -2,6 +2,7 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { AuthError } from "@/lib/auth/server";
+import { rateLimitMultiplier } from "@/lib/env";
 import { PaymentConfigurationError } from "@/lib/payments/types";
 import {
   assertSameOrigin,
@@ -52,7 +53,7 @@ export async function handleRoute(
   if (options.rateLimit) {
     const result = rateLimit(
       limitKey([options.action, ip]),
-      options.rateLimit.limit,
+      options.rateLimit.limit * rateLimitMultiplier(),
       options.rateLimit.windowMs,
     );
     if (!result.ok) {

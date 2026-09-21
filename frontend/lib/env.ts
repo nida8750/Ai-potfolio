@@ -48,6 +48,18 @@ export function isProduction(): boolean {
   return env.appEnv === "production";
 }
 
+/**
+ * Lets a development or test environment raise the request quotas. Production
+ * always uses the configured limits as written.
+ */
+export function rateLimitMultiplier(): number {
+  if (isProduction()) {
+    return 1;
+  }
+  const raw = Number(read("RATE_LIMIT_MULTIPLIER") ?? "1");
+  return Number.isFinite(raw) && raw >= 1 ? Math.min(raw, 1000) : 1;
+}
+
 export function isCognitoConfigured(): boolean {
   return Boolean(env.cognitoUserPoolId && env.cognitoClientId);
 }

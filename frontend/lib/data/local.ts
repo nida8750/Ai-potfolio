@@ -35,7 +35,10 @@ export interface StoreShape {
   settings: PlatformSettings;
 }
 
-const FILE = path.join(process.cwd(), ".data", "store.json");
+// Overridable so tests can point at a throwaway file instead of dev data.
+const FILE =
+  process.env.LOCAL_STORE_PATH?.trim() ||
+  path.join(process.cwd(), ".data", "store.json");
 
 let queue: Promise<void> = Promise.resolve();
 
