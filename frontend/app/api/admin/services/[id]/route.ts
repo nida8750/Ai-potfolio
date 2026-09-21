@@ -2,6 +2,7 @@ import { handleRoute, parseBody } from "@/lib/api/route";
 import { requireAdmin } from "@/lib/auth/server";
 import { ConflictError, updateService } from "@/lib/data/mutations";
 import { repository } from "@/lib/data/repository";
+import { revalidatePublicContent } from "@/lib/content/revalidate";
 import { jsonError, jsonSuccess } from "@/lib/security/http";
 import { serviceUpdateSchema } from "@/lib/validation/service";
 
@@ -28,6 +29,7 @@ export async function PATCH(
         entityId: service.id,
         metadata: { title: service.title, isActive: service.isActive },
       });
+      revalidatePublicContent();
       return jsonSuccess({ service });
     } catch (error) {
       if (error instanceof ConflictError) {
@@ -64,6 +66,7 @@ export async function DELETE(
         entityId: id,
         metadata: { reason: "existing_orders" },
       });
+      revalidatePublicContent();
       return jsonSuccess({ service, deleted: false, deactivated: true });
     }
 
@@ -75,6 +78,7 @@ export async function DELETE(
       entityId: id,
       metadata: { title: current.title },
     });
+    revalidatePublicContent();
     return jsonSuccess({ deleted: true, deactivated: false });
   });
 }

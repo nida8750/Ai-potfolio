@@ -1,19 +1,13 @@
-"use client";
-
-import type { FormEvent } from "react";
-import { Button } from "@/components/ui/Button";
+import { ContactForm } from "@/components/contact/ContactForm";
 import { Container } from "@/components/ui/Container";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { loadPublicServices } from "@/lib/content/public-content";
 import { PERSON_NAME } from "@/lib/constants";
+import { isN8nConfigured } from "@/lib/env";
 
-const fieldClassName =
-  "mt-2 w-full rounded-xl border border-white/10 bg-background px-3 text-base text-foreground outline-none focus-visible:border-primary";
-
-export function Contact() {
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-  }
+export async function Contact() {
+  const { items: services } = await loadPublicServices();
 
   return (
     <section
@@ -27,68 +21,23 @@ export function Contact() {
             eyebrow="CONTACT"
             title="LET'S BUILD WITH AI"
             titleId="contact-heading"
-            description={`Share a workflow, knowledge problem, or product idea. ${PERSON_NAME} reviews new work through this page — message delivery will be connected in a later phase.`}
+            description={`Share a workflow, knowledge problem, or product idea. ${PERSON_NAME} reviews every inquiry sent through this form.`}
           />
+          <p className="mt-6 max-w-md text-sm leading-6 text-muted">
+            Your message is stored against a reference you can quote later. If
+            you have an account, the inquiry is attached to it so you can follow
+            its status from your dashboard.
+          </p>
         </div>
+
         <GlassCard className="p-6 md:p-8">
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-5"
-            noValidate
-            aria-describedby="contact-form-note"
-          >
-            <div>
-              <label
-                htmlFor="contact-name"
-                className="text-sm font-medium text-foreground"
-              >
-                Name
-              </label>
-              <input
-                id="contact-name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                className={`${fieldClassName} h-11`}
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="contact-email"
-                className="text-sm font-medium text-foreground"
-              >
-                Email
-              </label>
-              <input
-                id="contact-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                className={`${fieldClassName} h-11`}
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="contact-message"
-                className="text-sm font-medium text-foreground"
-              >
-                Message
-              </label>
-              <textarea
-                id="contact-message"
-                name="message"
-                rows={5}
-                className={`${fieldClassName} resize-y py-3`}
-              />
-            </div>
-            <Button type="submit" aria-describedby="contact-form-note">
-              Send message
-            </Button>
-            <p id="contact-form-note" className="text-xs leading-5 text-muted">
-              This form is a frontend layout only. Submitting it does not send
-              email, store messages, or call an API.
-            </p>
-          </form>
+          <ContactForm
+            services={services.map((service) => ({
+              id: service.id,
+              title: service.title,
+            }))}
+            automationConfigured={isN8nConfigured()}
+          />
         </GlassCard>
       </Container>
     </section>

@@ -2,6 +2,7 @@ import { handleRoute, noStore, parseBody } from "@/lib/api/route";
 import { requireAdmin } from "@/lib/auth/server";
 import { ConflictError, createProject } from "@/lib/data/mutations";
 import { repository } from "@/lib/data/repository";
+import { revalidatePublicContent } from "@/lib/content/revalidate";
 import { jsonError, jsonSuccess } from "@/lib/security/http";
 import { projectInputSchema } from "@/lib/validation/project";
 
@@ -27,6 +28,7 @@ export async function POST(request: Request) {
         entityId: project.id,
         metadata: { title: project.title, isPublished: project.isPublished },
       });
+      revalidatePublicContent();
       return jsonSuccess({ project }, 201);
     } catch (error) {
       if (error instanceof ConflictError) {

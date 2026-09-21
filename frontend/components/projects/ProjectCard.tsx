@@ -1,14 +1,14 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import type { Project } from "@/types/project";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { ProjectLinks } from "@/components/projects/ProjectLinks";
 import { ProjectTags } from "@/components/projects/ProjectTags";
 import { fadeUp } from "@/lib/animations";
+import type { PublicProject } from "@/lib/data/presenters";
 
 interface ProjectCardProps {
-  project: Project;
+  project: PublicProject;
   index: number;
 }
 

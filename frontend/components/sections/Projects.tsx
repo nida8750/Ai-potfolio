@@ -1,11 +1,14 @@
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ServicesIntro } from "@/components/services/ServiceCard";
 import { Container } from "@/components/ui/Container";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { GlowOrb } from "@/components/ui/GlowOrb";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { projects } from "@/data/projects";
+import { loadPublicProjects } from "@/lib/content/public-content";
 
-export function Projects() {
+export async function Projects() {
+  const { items: projects } = await loadPublicProjects();
+
   return (
     <section
       id="projects"
@@ -25,13 +28,23 @@ export function Projects() {
             description="Concept systems that show how I structure agents, retrieval, voice, and automation. These are portfolio pieces, not claimed client engagements."
           />
         </ServicesIntro>
-        <ul className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
-          {projects.map((project, index) => (
-            <li key={project.slug} className="min-w-0">
-              <ProjectCard project={project} index={index} />
-            </li>
-          ))}
-        </ul>
+
+        {projects.length === 0 ? (
+          <div className="mt-10">
+            <EmptyState
+              title="No projects published yet"
+              description="Projects appear here once they are published in the admin console."
+            />
+          </div>
+        ) : (
+          <ul className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+            {projects.map((project, index) => (
+              <li key={project.id} className="min-w-0">
+                <ProjectCard project={project} index={index} />
+              </li>
+            ))}
+          </ul>
+        )}
       </Container>
     </section>
   );

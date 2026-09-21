@@ -2,6 +2,7 @@ import { handleRoute, parseBody } from "@/lib/api/route";
 import { requireAdmin } from "@/lib/auth/server";
 import { ConflictError, updateProject } from "@/lib/data/mutations";
 import { repository } from "@/lib/data/repository";
+import { revalidatePublicContent } from "@/lib/content/revalidate";
 import { jsonError, jsonSuccess } from "@/lib/security/http";
 import { projectUpdateSchema } from "@/lib/validation/project";
 
@@ -28,6 +29,7 @@ export async function PATCH(
         entityId: project.id,
         metadata: { title: project.title, isPublished: project.isPublished },
       });
+      revalidatePublicContent();
       return jsonSuccess({ project });
     } catch (error) {
       if (error instanceof ConflictError) {
@@ -56,6 +58,7 @@ export async function DELETE(
       entityType: "PROJECT",
       entityId: id,
     });
+    revalidatePublicContent();
     return jsonSuccess({ deleted: true });
   });
 }

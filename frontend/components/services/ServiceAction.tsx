@@ -1,0 +1,68 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { ApiRequestError, apiRequest, errorMessage } from "@/lib/api/client";
+import type { Order } from "@/types/order";
+
+interface ServiceActionProps {
+  serviceId: string;
+  title: string;
+  purchasable: boolean;
+}
+
+export function ServiceAction({ serviceId, title, purchasable }: ServiceActionProps) {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!purchasable) {
+    return (
+      <Button
+        href="#contact"
+        variant="secondary"
+        size="sm"
+        className="mt-4 w-full"
+        aria-label={`Request a quote for ${title}`}
+      >
+        Request a quote
+      </Button>
+    );
+  }
+
+  async function order() {
+    setPending(true);
+    setError(null);
+
+    try {
+      // The server derives the amount from the stored service price.
+      const result = await apiRequest<{ order: Order }>("/api/orders", {
+        json: { serviceId },
+      });
+      router.push(`/dashboard/orders/${result.order.id}`);
+    } catch (caught) {
+      if (caught instanceof ApiRequestError && caught.status === 401) {
+        router.push(`/login?next=${encodeURIComponent("/#services")}`);
+        return;
+      }
+      setError(errorMessage(caught));
+      setPending(false);
+    }
+  }
+
+  return (
+    <div className="mt-4">
+      <Button
+        size="sm"
+        className="w-full"
+        onClick={order}
+        disabled={pending}
+        aria-label={`Order ${title}`}
+      >
+        {pending ? "Creating order…" : "Order this service"}
+      </Button>
+      {error ? <p className="mt-2 text-xs text-red-300">{error}</p> : null}
+    </div>
+  );
+}

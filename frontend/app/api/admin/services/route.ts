@@ -2,6 +2,7 @@ import { handleRoute, noStore, parseBody } from "@/lib/api/route";
 import { requireAdmin } from "@/lib/auth/server";
 import { ConflictError, createService } from "@/lib/data/mutations";
 import { repository } from "@/lib/data/repository";
+import { revalidatePublicContent } from "@/lib/content/revalidate";
 import { jsonError, jsonSuccess } from "@/lib/security/http";
 import { serviceInputSchema } from "@/lib/validation/service";
 
@@ -27,6 +28,7 @@ export async function POST(request: Request) {
         entityId: service.id,
         metadata: { title: service.title, pricingType: service.pricingType },
       });
+      revalidatePublicContent();
       return jsonSuccess({ service }, 201);
     } catch (error) {
       if (error instanceof ConflictError) {
