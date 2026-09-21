@@ -203,6 +203,17 @@ export const localRepository = {
     return withStore((store) => store.orders.find((item) => item.id === id));
   },
 
+  async getOrderByProviderOrderId(
+    provider: Order["paymentProvider"],
+    providerOrderId: string,
+  ): Promise<Order | undefined> {
+    return withStore((store) =>
+      store.orders.find(
+        (item) => item.paymentProvider === provider && item.providerOrderId === providerOrderId,
+      ),
+    );
+  },
+
   async updateOrder(id: string, patch: Partial<Order>): Promise<Order | undefined> {
     return withStore((store) => {
       const order = store.orders.find((item) => item.id === id);

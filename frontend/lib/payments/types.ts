@@ -44,8 +44,14 @@ export interface PaymentProvider {
 }
 
 export class PaymentConfigurationError extends Error {
-  constructor(provider: string) {
-    super(`${provider} is not configured. Add its credentials to enable checkout.`);
+  constructor(detail: string) {
+    super(detail);
     this.name = "PaymentConfigurationError";
+  }
+
+  static forProvider(provider: string): PaymentConfigurationError {
+    return new PaymentConfigurationError(
+      `${provider} is not configured. Add its credentials to enable checkout.`,
+    );
   }
 }

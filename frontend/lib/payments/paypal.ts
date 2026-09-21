@@ -18,7 +18,7 @@ function apiBase(): string {
 
 function credentials(): { clientId: string; clientSecret: string } {
   if (!env.paypalClientId || !env.paypalClientSecret) {
-    throw new PaymentConfigurationError("PayPal");
+    throw PaymentConfigurationError.forProvider("PayPal");
   }
   return { clientId: env.paypalClientId, clientSecret: env.paypalClientSecret };
 }
@@ -155,7 +155,7 @@ export const paypalProvider: PaymentProvider = {
   async verifyWebhook(rawBody: string, headers: Headers): Promise<VerifiedEvent | null> {
     const webhookId = process.env.PAYPAL_WEBHOOK_ID?.trim();
     if (!webhookId) {
-      throw new PaymentConfigurationError("PayPal webhooks");
+      throw PaymentConfigurationError.forProvider("PayPal webhooks");
     }
 
     const verification = await paypalFetch<{ verification_status: string }>(

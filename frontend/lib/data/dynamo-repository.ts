@@ -390,6 +390,11 @@ export const dynamoRepository: PlatformRepository = {
     return strip(await get<Order>(`ORDER#${id}`, "ORDER"));
   },
 
+  async getOrderByProviderOrderId(provider, providerOrderId) {
+    const id = await resolveAlias(`ORDER_PROVIDER#${provider}#${providerOrderId}`);
+    return id ? this.getOrder(id) : undefined;
+  },
+
   async updateOrder(id, patch) {
     const current = await this.getOrder(id);
     if (!current) {
@@ -405,6 +410,12 @@ export const dynamoRepository: PlatformRepository = {
       entity: "ORDER",
       ...next,
     });
+    if (next.paymentProvider && next.providerOrderId) {
+      await putAlias(
+        `ORDER_PROVIDER#${next.paymentProvider}#${next.providerOrderId}`,
+        next.id,
+      );
+    }
     return next;
   },
 

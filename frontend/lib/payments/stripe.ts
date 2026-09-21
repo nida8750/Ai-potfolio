@@ -21,7 +21,7 @@ let client: Stripe | undefined;
 
 function stripe(): Stripe {
   if (!env.stripeSecretKey) {
-    throw new PaymentConfigurationError("Stripe");
+    throw PaymentConfigurationError.forProvider("Stripe");
   }
   client ??= new Stripe(env.stripeSecretKey);
   return client;
@@ -144,7 +144,7 @@ export const stripeProvider: PaymentProvider = {
 
   async verifyWebhook(rawBody: string, headers: Headers): Promise<VerifiedEvent | null> {
     if (!env.stripeWebhookSecret) {
-      throw new PaymentConfigurationError("Stripe webhooks");
+      throw PaymentConfigurationError.forProvider("Stripe webhooks");
     }
     if (!verifyStripeSignature(rawBody, headers.get("stripe-signature"), env.stripeWebhookSecret)) {
       return null;

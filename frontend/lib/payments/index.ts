@@ -32,14 +32,14 @@ export function resolveProvider(preferred?: PaymentProviderName): PaymentProvide
 
   if (preferred) {
     if (!available.includes(preferred)) {
-      throw new PaymentConfigurationError(preferred);
+      throw PaymentConfigurationError.forProvider(preferred);
     }
     return providers[preferred];
   }
 
   if (env.paymentProvider !== "none") {
     if (!available.includes(env.paymentProvider)) {
-      throw new PaymentConfigurationError(env.paymentProvider);
+      throw PaymentConfigurationError.forProvider(env.paymentProvider);
     }
     return providers[env.paymentProvider];
   }
@@ -48,8 +48,14 @@ export function resolveProvider(preferred?: PaymentProviderName): PaymentProvide
     return providers[available[0]];
   }
 
+  if (available.length === 0) {
+    throw new PaymentConfigurationError(
+      "Online payment is not available yet. No payment provider has been configured.",
+    );
+  }
+
   throw new PaymentConfigurationError(
-    available.length === 0 ? "No payment provider" : "PAYMENT_PROVIDER",
+    "Several payment providers are configured. Set PAYMENT_PROVIDER to choose one.",
   );
 }
 
