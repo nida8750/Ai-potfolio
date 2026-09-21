@@ -1,8 +1,11 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
+// A control sits on top of a dark card, so it needs a lighter surface than
+// the card and a visible border. Using the page background here made fields
+// read as empty space.
 const controlClasses =
-  "w-full rounded-xl border border-white/10 bg-background px-3 py-2.5 text-base text-foreground outline-none transition-colors placeholder:text-muted/70 focus-visible:border-primary disabled:opacity-60 md:text-sm";
+  "w-full rounded-xl border border-white/20 bg-surface-secondary px-3 py-2.5 text-base text-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] outline-none transition-colors placeholder:text-muted/70 hover:border-white/30 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-60 md:text-sm";
 
 interface FieldProps {
   id: string;
@@ -68,7 +71,7 @@ export function Checkbox({
       <input
         id={id}
         type="checkbox"
-        className="h-4 w-4 rounded border-white/20 bg-background accent-primary"
+        className="h-4 w-4 rounded border-white/30 bg-surface-secondary accent-primary"
         {...props}
       />
       {label}
