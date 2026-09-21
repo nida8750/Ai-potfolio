@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CaptureOnReturn } from "@/components/app/CaptureOnReturn";
 import { CheckoutButton } from "@/components/app/CheckoutButton";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Alert } from "@/components/ui/Alert";
@@ -53,7 +54,11 @@ export default async function OrderDetailPage({
         </Link>
       </p>
 
-      {query.checkout === "complete" ? (
+      {query.checkout === "complete" &&
+      order.paymentProvider === "paypal" &&
+      order.paymentStatus !== "paid" ? (
+        <CaptureOnReturn orderId={order.id} />
+      ) : query.checkout === "complete" ? (
         <Alert tone="info">
           You returned from the payment provider. This order updates to paid once
           the provider&apos;s signed confirmation arrives.

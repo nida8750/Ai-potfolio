@@ -45,6 +45,20 @@ export async function settlePaymentEvent(
     ? await repository.getOrderByProviderOrderId(provider, event.providerOrderId)
     : undefined;
 
+  // A capture performed on return and the webhook that follows it arrive with
+  // different event ids, so an already paid order is the second signal for the
+  // same money and must not be recorded twice.
+  if (order && order.paymentStatus === "paid" && event.status === "paid") {
+    await repository.recordProcessedEvent(provider, event.eventId);
+    logEvent({
+      requestId,
+      action: "payment.settle",
+      result: "ok",
+      metadata: { provider, orderId: order.id, outcome: "already_paid" },
+    });
+    return "duplicate";
+  }
+
   if (!order) {
     await repository.recordProcessedEvent(provider, event.eventId);
     logEvent({

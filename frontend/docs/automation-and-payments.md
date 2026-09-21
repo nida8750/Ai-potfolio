@@ -65,6 +65,13 @@ Webhooks are verified by calling PayPal's `verify-webhook-signature` endpoint,
 which is why `PAYPAL_WEBHOOK_ID` is required. Point the webhook at
 `/api/webhooks/paypal`.
 
+PayPal splits approval from capture: the payer approves, then the merchant
+captures. When a payer returns to the order page on an unsettled PayPal order
+the browser calls `/api/payments/capture`, which captures server-side and
+settles the result. The `PAYMENT.CAPTURE.COMPLETED` webhook that follows
+carries a different event id, so settlement also treats an already paid order
+as a duplicate to avoid recording the same money twice.
+
 ### Settlement rules
 
 A verified event is applied by `lib/payments/settle.ts`:
