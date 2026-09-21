@@ -54,6 +54,7 @@ body {
 
 body {
   position: relative;
+  overflow-x: hidden;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);

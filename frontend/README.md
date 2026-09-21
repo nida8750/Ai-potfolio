@@ -1,15 +1,22 @@
 # Nida AI frontend
 
-Phase 1 of the Nida Asghar / Nida AI portfolio. Next.js App Router, TypeScript, Tailwind CSS, Framer Motion, and Lucide React. Content is data-driven from `data/*.ts` so Phase 2 can replace it with FastAPI + MongoDB.
+Portfolio site for Nida Asghar / Nida AI — AI Agent & Automation Engineer. Next.js App Router, TypeScript, Tailwind CSS, Framer Motion, and Lucide React.
 
 ## Run
 
 ```bash
+cd frontend
 npm install
 npm run dev
 ```
 
 Dev server: `http://localhost:43127` (`0.0.0.0`).
+
+```bash
+npm run lint
+npm run typecheck
+npm run build
+```
 
 ## Stack
 
@@ -19,13 +26,13 @@ Dev server: `http://localhost:43127` (`0.0.0.0`).
 - Framer Motion
 - Lucide React
 
-No auth, database, or AI APIs in this phase.
+No auth, database, or AI APIs in this frontend. Contact is a layout-only form.
 
 ## Layout
 
-- `app/` — root layout and homepage composition
+- `app/` — root layout, metadata, and homepage composition
 - `components/layout` — navbar, mobile menu, footer
-- `components/sections` — hero, services, projects
+- `components/sections` — hero, services, projects, about, contact
 - `components/ui` — shared primitives
 - `data/` — navigation, services, projects
 - `lib/` — constants, class helper, motion variants
@@ -33,4 +40,4 @@ No auth, database, or AI APIs in this phase.
 
 ## Resume
 
-`Download Resume` requests `/resume/resume.pdf`. If the file is missing, the UI shows a fallback message instead of a broken download.
+`Download Resume` links to `/resume/resume.pdf`.

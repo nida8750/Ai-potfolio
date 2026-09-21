@@ -1,81 +1,51 @@
-import { navigation } from "@/data/navigation";
 import { Container } from "@/components/ui/Container";
 import {
+  FOOTER_CONNECT,
   FOOTER_EXPLORE,
   FOOTER_SERVICES,
   SITE_NAME,
-  SOCIAL_LINKS,
+  SITE_YEAR,
   TAGLINE,
 } from "@/lib/constants";
 
+const groups = [
+  { title: "Services", items: FOOTER_SERVICES },
+  { title: "Explore", items: FOOTER_EXPLORE },
+  { title: "Connect", items: FOOTER_CONNECT },
+] as const;
+
 export function Footer() {
   return (
-    <footer className="border-t border-white/8 bg-surface">
-      <Container className="grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-4">
-        <div id="about">
-          <p className="font-display text-sm tracking-[0.22em] text-ink">
+    <footer className="relative z-[1] border-t border-white/10 bg-surface">
+      <Container className="grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="min-w-0">
+          <p className="font-display text-sm tracking-[0.22em] text-foreground">
             {SITE_NAME.toUpperCase()}
           </p>
-          <p className="mt-4 max-w-xs text-sm leading-6 text-muted">{TAGLINE}</p>
+          <p className="mt-3 max-w-xs text-sm leading-6 text-muted">{TAGLINE}</p>
         </div>
-        <div>
-          <p className="text-sm font-semibold text-ink">Services</p>
-          <ul className="mt-4 space-y-2">
-            {FOOTER_SERVICES.map((item) => (
-              <li key={item.label}>
-                <a href={item.href} className="text-sm text-muted hover:text-ink">
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-ink">Explore</p>
-          <ul className="mt-4 space-y-2">
-            {FOOTER_EXPLORE.map((item) => (
-              <li key={item.label}>
-                <a href={item.href} className="text-sm text-muted hover:text-ink">
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div id="contact">
-          <p className="text-sm font-semibold text-ink">Connect</p>
-          <ul className="mt-4 space-y-2">
-            <li>
-              <a href={SOCIAL_LINKS.github} className="text-sm text-muted hover:text-ink">
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href={SOCIAL_LINKS.linkedin} className="text-sm text-muted hover:text-ink">
-                LinkedIn
-              </a>
-            </li>
-            <li>
-              <a href={SOCIAL_LINKS.email} className="text-sm text-muted hover:text-ink">
-                Email
-              </a>
-            </li>
-          </ul>
-        </div>
+        {groups.map((group) => (
+          <nav key={group.title} aria-label={group.title}>
+            <p className="text-sm font-semibold text-foreground">{group.title}</p>
+            <ul className="mt-3 space-y-2">
+              {group.items.map((item) => (
+                <li key={`${group.title}-${item.label}`}>
+                  <a
+                    href={item.href}
+                    className="text-sm text-muted hover:text-foreground"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))}
       </Container>
-      <Container className="flex flex-col gap-3 border-t border-white/8 py-6 text-xs text-muted md:flex-row md:items-center md:justify-between">
-        <p>© 2026 {SITE_NAME}</p>
-        <nav aria-label="Footer">
-          <ul className="flex flex-wrap gap-4">
-            {navigation.map((item) => (
-              <li key={item.href}>
-                <a href={item.href} className="hover:text-ink">
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+      <Container className="border-t border-white/10 py-5">
+        <p className="text-xs text-muted">
+          © {SITE_YEAR} {SITE_NAME}
+        </p>
       </Container>
     </footer>
   );

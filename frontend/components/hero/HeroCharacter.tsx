@@ -2,9 +2,17 @@ import { cn } from "@/lib/utils";
 
 export interface HeroCharacterProps {
   className?: string;
+  idPrefix?: string;
 }
 
-export function HeroCharacter({ className }: HeroCharacterProps) {
+export function HeroCharacter({
+  className,
+  idPrefix = "hero-core",
+}: HeroCharacterProps) {
+  const glowId = `${idPrefix}-glow`;
+  const ringId = `${idPrefix}-ring`;
+  const gridId = `${idPrefix}-grid`;
+
   return (
     <div
       aria-hidden="true"
@@ -15,17 +23,17 @@ export function HeroCharacter({ className }: HeroCharacterProps) {
     >
       <svg viewBox="0 0 400 400" className="h-full w-full">
         <defs>
-          <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+          <radialGradient id={glowId} cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#F8FAFC" stopOpacity="0.95" />
             <stop offset="35%" stopColor="#8B5CF6" stopOpacity="0.8" />
             <stop offset="100%" stopColor="#38BDF8" stopOpacity="0" />
           </radialGradient>
-          <linearGradient id="ringStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id={ringId} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#8B5CF6" />
             <stop offset="100%" stopColor="#38BDF8" />
           </linearGradient>
           <pattern
-            id="coreGrid"
+            id={gridId}
             width="22"
             height="22"
             patternUnits="userSpaceOnUse"
@@ -39,7 +47,7 @@ export function HeroCharacter({ className }: HeroCharacterProps) {
           </pattern>
         </defs>
 
-        <circle cx="200" cy="200" r="168" fill="url(#coreGrid)" />
+        <circle cx="200" cy="200" r="168" fill={`url(#${gridId})`} />
         <circle
           cx="200"
           cy="200"
@@ -54,7 +62,7 @@ export function HeroCharacter({ className }: HeroCharacterProps) {
           cy="200"
           r="128"
           fill="none"
-          stroke="url(#ringStroke)"
+          stroke={`url(#${ringId})`}
           strokeOpacity="0.55"
           strokeWidth="1.4"
         />
@@ -67,7 +75,7 @@ export function HeroCharacter({ className }: HeroCharacterProps) {
           strokeOpacity="0.4"
           strokeDasharray="6 10"
         />
-        <circle cx="200" cy="200" r="42" fill="url(#coreGlow)" />
+        <circle cx="200" cy="200" r="42" fill={`url(#${glowId})`} />
         <circle cx="200" cy="200" r="10" fill="#F8FAFC" />
 
         <line
@@ -107,8 +115,8 @@ export function HeroCharacter({ className }: HeroCharacterProps) {
         <circle cx="328" cy="200" r="4.5" fill="#38BDF8" />
         <circle cx="200" cy="336" r="5" fill="#38BDF8" />
         <circle cx="72" cy="200" r="4.5" fill="#8B5CF6" />
-        <circle cx="286" cy="114" r="3.5" fill="#C4B5FD" />
-        <circle cx="114" cy="286" r="3.5" fill="#7DD3FC" />
+        <circle cx="286" cy="114" r="3.5" fill="#8B5CF6" />
+        <circle cx="114" cy="286" r="3.5" fill="#38BDF8" />
       </svg>
     </div>
   );

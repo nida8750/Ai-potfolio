@@ -1,6 +1,6 @@
 # Nida AI
 
-Portfolio for **Nida Asghar** — AI Agent & Automation Engineer. Phase 1 is a static, data-driven Next.js frontend.
+Portfolio for **Nida Asghar** — AI Agent & Automation Engineer. Static, data-driven Next.js frontend with Hero, Services, Projects, About, Contact, and Footer.
 
 ## Run locally
 
@@ -27,7 +27,7 @@ Open [http://localhost:43127](http://localhost:43127).
 Copy `frontend/.env.example` to `frontend/.env.local` if needed:
 
 ```
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=http://localhost:43127
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 

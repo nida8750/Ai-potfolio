@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Syne } from "next/font/google";
 import "./globals.css";
+import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
-import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/constants";
+import {
+  PERSON_NAME,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TITLE,
+} from "@/lib/constants";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -17,9 +23,21 @@ const syne = Syne({
 });
 
 export const metadata: Metadata = {
-  title: `${SITE_NAME} — AI Agent & Automation Engineer`,
+  title: SITE_TITLE,
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
+  authors: [{ name: PERSON_NAME }],
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    type: "website",
+    locale: "en_US",
+    siteName: SITE_NAME,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -37,6 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   );

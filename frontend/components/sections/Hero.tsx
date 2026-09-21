@@ -64,7 +64,7 @@ export function Hero() {
             {HERO_GREETING}
           </motion.p>
           <motion.h1
-            className="mt-4 font-display text-[2rem] leading-[1.15] tracking-tight text-foreground xs:text-[2.25rem] md:text-5xl lg:text-[3.15rem]"
+            className="mt-4 font-display text-[2rem] leading-[1.15] tracking-tight break-words text-foreground xs:text-[2.25rem] md:text-5xl lg:text-[3.15rem]"
             {...revealMotion(reduceMotion, { delay: 0.12, y: 16 })}
           >
             {ROLE}
@@ -96,13 +96,19 @@ export function Hero() {
             className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap"
             {...revealMotion(reduceMotion, { delay: 0.28, y: 12 })}
           >
-            <Button href="#projects" size="lg" icon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}>
+            <Button
+              href="#projects"
+              size="lg"
+              className="w-full sm:w-auto"
+              icon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
+            >
               Explore My Work
             </Button>
             <Button
               href="#contact"
               variant="secondary"
               size="lg"
+              className="w-full sm:w-auto"
               icon={<MessageCircle className="h-4 w-4" aria-hidden="true" />}
             >
               Talk to My AI
@@ -112,6 +118,7 @@ export function Hero() {
               download={RESUME_FILENAME}
               variant="ghost"
               size="lg"
+              className="w-full sm:w-auto"
               icon={<Download className="h-4 w-4" aria-hidden="true" />}
             >
               Download Resume
@@ -131,7 +138,7 @@ export function Hero() {
             {...revealMotion(reduceMotion, { delay: 0.32, scale: 0.96, y: 0 })}
           >
             <motion.div {...floatMotion(reduceMotion, 0.4)}>
-              <HeroCharacter />
+              <HeroCharacter idPrefix="hero-core" />
             </motion.div>
             <ul className="mt-6 grid grid-cols-2 gap-3 lg:mt-0 lg:contents">
               {skillCards.map((card) => (
@@ -144,7 +151,6 @@ export function Hero() {
                     <FloatingSkillCard
                       title={card.title}
                       icon={card.icon}
-                      delay={card.delay}
                     />
                   </motion.div>
                 </motion.li>

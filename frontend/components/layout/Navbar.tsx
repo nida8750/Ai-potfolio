@@ -18,7 +18,9 @@ export function Navbar() {
   const wasOpen = useRef(false);
 
   useEffect(() => {
-    function onScroll() {
+    let frame = 0;
+
+    function update() {
       const next = window.scrollY > 12;
       setScrolled((prev) => (prev === next ? prev : next));
 
@@ -33,9 +35,24 @@ export function Navbar() {
       setActiveHref((prev) => (prev === current ? prev : current));
     }
 
-    onScroll();
+    function onScroll() {
+      if (frame) {
+        return;
+      }
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        update();
+      });
+    }
+
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) {
+        window.cancelAnimationFrame(frame);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -98,6 +115,7 @@ export function Navbar() {
             className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-foreground lg:hidden"
             aria-expanded={open}
             aria-controls={menuId}
+            aria-haspopup="dialog"
             aria-label={open ? "Close menu" : "Open menu"}
             onClick={() => setOpen((current) => !current)}
           >

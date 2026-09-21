@@ -1,43 +1,49 @@
-import { ArrowUpRight, FolderGit2 } from "lucide-react";
-
 interface ProjectLinksProps {
   githubUrl?: string;
   liveUrl?: string;
-  caseStudyHref?: string;
 }
 
-export function ProjectLinks({
-  githubUrl,
-  liveUrl,
-  caseStudyHref = "#projects",
-}: ProjectLinksProps) {
+function isPublicUrl(value?: string): value is string {
+  return Boolean(
+    value && (value.startsWith("https://") || value.startsWith("http://")),
+  );
+}
+
+export function ProjectLinks({ githubUrl, liveUrl }: ProjectLinksProps) {
+  const github = isPublicUrl(githubUrl) ? githubUrl : undefined;
+  const live = isPublicUrl(liveUrl) ? liveUrl : undefined;
+
+  if (!github && !live) {
+    return (
+      <p className="mt-5 text-xs leading-5 text-muted">
+        Public repository and live demo links will appear here when they are
+        available.
+      </p>
+    );
+  }
+
   return (
-    <div className="mt-5 flex flex-wrap items-center gap-3">
-      {githubUrl ? (
+    <div className="mt-5 flex flex-wrap items-center gap-4">
+      {github ? (
         <a
-          href={githubUrl}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-ink"
+          href={github}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm font-medium text-muted hover:text-foreground"
         >
-          <FolderGit2 className="h-4 w-4" aria-hidden="true" />
           GitHub
         </a>
       ) : null}
-      {liveUrl ? (
+      {live ? (
         <a
-          href={liveUrl}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-ink"
+          href={live}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm font-medium text-muted hover:text-foreground"
         >
           Live Demo
-          <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
         </a>
       ) : null}
-      <a
-        href={caseStudyHref}
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-blue transition-colors hover:text-ink"
-      >
-        Case Study
-        <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-      </a>
     </div>
   );
 }

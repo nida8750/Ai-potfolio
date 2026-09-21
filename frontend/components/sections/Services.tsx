@@ -30,7 +30,11 @@ export function Services() {
         </ServicesIntro>
         <ul className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
           {services.map((service, index) => (
-            <li key={service.title}>
+            <li
+              key={service.title}
+              id={service.icon === "agents" ? "agents" : undefined}
+              className="min-w-0"
+            >
               <ServiceCard service={service} index={index} />
             </li>
           ))}

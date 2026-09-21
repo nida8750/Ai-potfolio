@@ -7,7 +7,6 @@ interface FloatingSkillCardProps {
   subtitle?: string;
   icon?: ReactNode;
   position?: string;
-  delay?: number;
   className?: string;
 }
 

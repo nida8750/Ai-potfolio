@@ -48,6 +48,33 @@ export function MobileMenu({ open, onClose, menuId }: MobileMenuProps) {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         onClose();
+        return;
+      }
+
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      const root = document.getElementById(menuId);
+      if (!root) {
+        return;
+      }
+
+      const focusable = [
+        ...root.querySelectorAll<HTMLElement>("a[href], button:not([disabled])"),
+      ];
+      if (focusable.length === 0) {
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     }
 
