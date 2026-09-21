@@ -60,15 +60,34 @@ function errorCode(body: Record<string, unknown>): string {
   return ((body.error ?? {}) as { code?: string }).code ?? "";
 }
 
-async function register(as: string): Promise<string> {
+/**
+ * Registers once and reuses the session. Signup is deliberately rate limited
+ * in the running app, so the suite must not burn that budget per test.
+ */
+async function register(as: string): Promise<boolean> {
   const email = unique(as);
   const signup = await call("/api/auth/signup", {
     json: { name: "Test Person", email, password: "Passw0rd123" },
   });
+
+  if (signup.status !== 201) {
+    return false;
+  }
+
   const code = data(signup.body).verificationCode as string;
   await call("/api/auth/verify", { json: { email, code } });
   await call("/api/auth/login", { json: { email, password: "Passw0rd123" }, as });
-  return email;
+  return jars.has(as);
+}
+
+const RATE_LIMIT_HINT =
+  "rate limited: restart the server with RATE_LIMIT_MULTIPLIER=20 to run this suite";
+
+/** Reason to skip the signed-in tests, or null when a session is available. */
+function noSession(): string | null {
+  return jars.has("member")
+    ? null
+    : "no session: signup is rate limited, restart the server with RATE_LIMIT_MULTIPLIER=20";
 }
 
 before(async () => {
@@ -78,6 +97,16 @@ before(async () => {
   } catch {
     serverUp = false;
   }
+
+  if (serverUp) {
+    // The very first account on a fresh datastore is promoted to ADMIN, so
+    // claim that slot before registering the ordinary user these tests need.
+    await register("bootstrapAdmin");
+
+    if (!(await register("member"))) {
+      console.warn("Could not register a test user; signed-in tests will skip.");
+    }
+  }
 });
 
 after(() => {
@@ -86,7 +115,7 @@ after(() => {
   }
 });
 
-describe("public endpoints", { skip: !process.env.TEST_BASE_URL && false }, () => {
+describe("public endpoints", () => {
   it("serves active services", async (t) => {
     if (!serverUp) return t.skip("server not running");
     const result = await call("/api/services");
@@ -110,6 +139,7 @@ describe("public endpoints", { skip: !process.env.TEST_BASE_URL && false }, () =
         message: "We need an agent workflow to triage inbound leads.",
       },
     });
+    if (result.status === 429) return t.skip(RATE_LIMIT_HINT);
     assert.equal(result.status, 201);
     assert.equal(data(result.body).stored, true);
     assert.equal(typeof data(result.body).automationConfigured, "boolean");
@@ -120,6 +150,7 @@ describe("public endpoints", { skip: !process.env.TEST_BASE_URL && false }, () =
     const result = await call("/api/contact", {
       json: { name: "x", email: "nope", message: "short" },
     });
+    if (result.status === 429) return t.skip(RATE_LIMIT_HINT);
     assert.equal(result.status, 422);
   });
 });
@@ -134,7 +165,8 @@ describe("authentication and authorization", () => {
 
   it("refuses admin endpoints for a normal user", async (t) => {
     if (!serverUp) return t.skip("server not running");
-    await register("member");
+    const reason = noSession();
+    if (reason) return t.skip(reason);
     const overview = await call("/api/admin/overview", { as: "member" });
     assert.equal(overview.status, 403);
     assert.equal(errorCode(overview.body), "FORBIDDEN");
@@ -152,8 +184,9 @@ describe("authentication and authorization", () => {
 
   it("scopes order listings to the signed-in account", async (t) => {
     if (!serverUp) return t.skip("server not running");
-    await register("scoped");
-    const orders = await call("/api/orders", { as: "scoped" });
+    const reason = noSession();
+    if (reason) return t.skip(reason);
+    const orders = await call("/api/orders", { as: "member" });
     assert.equal(orders.status, 200);
     assert.deepEqual(data(orders.body).orders, []);
   });
@@ -169,6 +202,7 @@ describe("authentication and authorization", () => {
         message: "This request comes from another origin entirely.",
       }),
     });
+    // The origin check runs before rate limiting, so this stays deterministic.
     assert.equal(response.status, 403);
   });
 });
@@ -188,9 +222,10 @@ describe("payment safety", () => {
 
   it("refuses checkout for an order that does not belong to the caller", async (t) => {
     if (!serverUp) return t.skip("server not running");
-    await register("outsider");
+    const reason = noSession();
+    if (reason) return t.skip(reason);
     const result = await call("/api/payments/checkout", {
-      as: "outsider",
+      as: "member",
       json: { orderId: "00000000-0000-4000-8000-000000000000" },
     });
     assert.equal(result.status, 404);

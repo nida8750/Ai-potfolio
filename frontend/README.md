@@ -25,6 +25,16 @@ npm run build      # production build
 The first account to sign up becomes the administrator. Everyone after that is
 a normal user.
 
+`npm run test:api` signs accounts up as it runs, so start the server with
+raised quotas for it and reset the store first:
+
+```bash
+rm -rf .data && RATE_LIMIT_MULTIPLIER=20 npm run dev
+```
+
+Against normal quotas the suite skips the tests it cannot set up rather than
+reporting false failures.
+
 ## Stack
 
 - Next.js 16 App Router, TypeScript (strict), Tailwind CSS 4
