@@ -1,15 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Field, TextInput } from "@/components/ui/Field";
 import { apiRequest, errorMessage } from "@/lib/api/client";
+import { safeInternalPath } from "@/lib/security/redirect";
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [status, setStatus] = useState<"idle" | "loading">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +28,7 @@ export function LoginForm() {
           password: String(form.get("password") ?? ""),
         },
       });
-      router.replace("/dashboard");
+      router.replace(safeInternalPath(searchParams.get("next")));
       router.refresh();
     } catch (caught) {
       setError(errorMessage(caught));

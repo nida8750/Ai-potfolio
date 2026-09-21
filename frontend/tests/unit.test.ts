@@ -9,6 +9,7 @@ import { serviceInputSchema, serviceUpdateSchema } from "@/lib/validation/servic
 import { projectInputSchema } from "@/lib/validation/project";
 import { contactSchema } from "@/lib/validation/contact";
 import { rateLimit } from "@/lib/security/rate-limit";
+import { safeInternalPath } from "@/lib/security/redirect";
 import { sanitizeMultiline, sanitizeText } from "@/lib/security/sanitize";
 
 const SECRET = "whsec_test_secret_value_for_unit_tests";
@@ -210,6 +211,19 @@ describe("rate limiting", () => {
     assert.equal(rateLimit(key, 2, 60_000).ok, true);
     assert.equal(rateLimit(key, 2, 60_000).ok, true);
     assert.equal(rateLimit(key, 2, 60_000).ok, false);
+  });
+});
+
+describe("post-login redirect", () => {
+  it("keeps a same-site path", () => {
+    assert.equal(safeInternalPath("/admin/orders"), "/admin/orders");
+  });
+
+  it("refuses anything that could leave the site", () => {
+    assert.equal(safeInternalPath("https://attacker.test"), "/dashboard");
+    assert.equal(safeInternalPath("//attacker.test"), "/dashboard");
+    assert.equal(safeInternalPath("/\\attacker.test"), "/dashboard");
+    assert.equal(safeInternalPath(null), "/dashboard");
   });
 });
 
