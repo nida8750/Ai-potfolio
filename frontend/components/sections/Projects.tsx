@@ -1,3 +1,4 @@
+import { FolderKanban } from "lucide-react";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ServicesIntro } from "@/components/services/ServiceCard";
 import { Container } from "@/components/ui/Container";
@@ -13,7 +14,7 @@ export async function Projects() {
     <section
       id="projects"
       aria-labelledby="projects-heading"
-      className="relative overflow-hidden py-16 md:py-24 lg:py-28"
+      className="relative overflow-hidden py-14 md:py-20 lg:py-24"
     >
       <GlowOrb
         color="purple"
@@ -22,10 +23,10 @@ export async function Projects() {
       <Container className="relative">
         <ServicesIntro>
           <SectionHeading
-            eyebrow="SELECTED WORK"
-            title="FEATURED AI PROJECTS"
+            icon={<FolderKanban className="h-5 w-5" />}
+            title="Featured Projects"
             titleId="projects-heading"
-            description="Concept systems that show how I structure agents, retrieval, voice, and automation. These are portfolio pieces, not claimed client engagements."
+            description="Real-world AI solutions with a modern tech stack. These are portfolio concepts, not claimed client engagements."
           />
         </ServicesIntro>
 
@@ -37,7 +38,7 @@ export async function Projects() {
             />
           </div>
         ) : (
-          <ul className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+          <ul className="mt-9 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {projects.map((project, index) => (
               <li key={project.id} className="min-w-0">
                 <ProjectCard project={project} index={index} />

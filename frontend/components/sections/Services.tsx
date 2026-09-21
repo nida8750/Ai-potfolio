@@ -1,3 +1,4 @@
+import { Sparkles } from "lucide-react";
 import { ServiceCard, ServicesIntro } from "@/components/services/ServiceCard";
 import { Container } from "@/components/ui/Container";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -14,7 +15,7 @@ export async function Services() {
     <section
       id="services"
       aria-labelledby="services-heading"
-      className="relative overflow-hidden py-16 md:py-24 lg:py-28"
+      className="relative overflow-hidden py-14 md:py-20 lg:py-24"
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <GridBackground />
@@ -23,10 +24,10 @@ export async function Services() {
       <Container className="relative">
         <ServicesIntro>
           <SectionHeading
-            eyebrow="WHAT I BUILD"
-            title="AI SYSTEMS BUILT TO AUTOMATE"
+            icon={<Sparkles className="h-5 w-5" />}
+            title="My Services"
             titleId="services-heading"
-            description="Intelligent systems designed to connect AI models, agents, knowledge, workflows, and business processes."
+            description="Powerful AI solutions to automate, enhance, and grow your business."
           />
         </ServicesIntro>
 
@@ -38,7 +39,7 @@ export async function Services() {
             />
           </div>
         ) : (
-          <ul className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <ul className="mt-9 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {services.map((service, index) => (
               <li
                 key={service.id}

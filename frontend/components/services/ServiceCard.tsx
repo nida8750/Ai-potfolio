@@ -30,9 +30,9 @@ export function ServicesIntro({ children }: { children: ReactNode }) {
   );
 }
 
-function priceLabel(service: PublicService): string {
+function priceLabel(service: PublicService): string | null {
   if (service.pricingType === "custom" || service.price == null) {
-    return "Custom quote";
+    return null;
   }
   const amount = formatMoney(service.price, service.currency);
   return service.pricingType === "starting_from" ? `From ${amount}` : amount;
@@ -41,6 +41,7 @@ function priceLabel(service: PublicService): string {
 export function ServiceCard({ service, index }: ServiceCardProps) {
   const reduceMotion = useReducedMotion();
   const headingId = `${service.slug}-title`;
+  const price = priceLabel(service);
 
   return (
     <motion.article
@@ -58,25 +59,31 @@ export function ServiceCard({ service, index }: ServiceCardProps) {
     >
       <GlassCard
         hover
-        className="group flex h-full flex-col p-6 motion-reduce:transition-none"
+        className="group flex h-full flex-col p-5 motion-reduce:transition-none"
       >
         <ServiceIcon name={service.icon} />
-        <h3 id={headingId} className="mt-5 font-display text-xl text-foreground">
+        <h3
+          id={headingId}
+          className="mt-4 font-display text-[1.05rem] leading-snug text-foreground"
+        >
           {service.title}
         </h3>
-        <p className="mt-3 flex-1 text-sm leading-6 text-muted">
+        <p className="mt-2.5 flex-1 text-[13px] leading-6 text-muted">
           {service.shortDescription}
         </p>
-        <ul className="mt-5 flex flex-wrap gap-2">
+
+        <ul className="mt-4 grid grid-cols-2 gap-2">
           {service.technologies.map((tech) => (
-            <li key={tech}>
-              <Badge>{tech}</Badge>
+            <li key={tech} className="min-w-0">
+              <Badge className="w-full justify-center truncate">{tech}</Badge>
             </li>
           ))}
         </ul>
-        <p className="mt-5 text-sm font-semibold text-foreground">
-          {priceLabel(service)}
-        </p>
+
+        {price ? (
+          <p className="mt-4 text-sm font-semibold text-foreground">{price}</p>
+        ) : null}
+
         <ServiceAction
           serviceId={service.id}
           title={service.title}

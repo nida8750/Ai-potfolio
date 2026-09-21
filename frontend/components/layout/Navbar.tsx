@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, Sparkles, X } from "lucide-react";
 import { hireCta, navigation } from "@/data/navigation";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
@@ -75,10 +75,18 @@ export function Navbar() {
       <Container className="grid h-16 grid-cols-[auto_1fr_auto] items-center gap-3 md:h-[4.5rem]">
         <a
           href="#home"
-          className="min-w-0 justify-self-start font-display text-sm tracking-[0.18em] text-foreground wide:tracking-[0.22em]"
+          className="inline-flex min-w-0 items-center gap-2 justify-self-start text-foreground"
           aria-label={`${SITE_NAME} home`}
         >
-          {SITE_NAME.toUpperCase()}
+          <span
+            aria-hidden="true"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-white shadow-[0_0_16px_rgb(139_92_246_/_0.4)]"
+          >
+            <Sparkles className="h-4 w-4" />
+          </span>
+          <span className="truncate font-display text-base tracking-tight">
+            {SITE_NAME}
+          </span>
         </a>
         <nav aria-label="Primary" className="hidden justify-self-center lg:block">
           <ul className="flex items-center gap-6 xl:gap-8">

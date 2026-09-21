@@ -31,7 +31,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
       className="h-full min-w-0"
     >
       <GlassCard hover className="flex h-full flex-col overflow-hidden p-0">
-        <div className="relative aspect-[16/10] overflow-hidden bg-surface-secondary">
+        <div className="relative aspect-[16/10] overflow-hidden border-b border-white/10 bg-surface-secondary">
           {project.image ? (
             // Local SVG concept art; next/image is reserved for raster assets.
             // eslint-disable-next-line @next/next/no-img-element
@@ -43,15 +43,20 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
           ) : (
             <div className="h-full bg-[radial-gradient(circle_at_30%_20%,rgb(139_92_246_/_0.2),transparent_55%),radial-gradient(circle_at_80%_80%,rgb(56_189_248_/_0.12),transparent_50%)]" />
           )}
-        </div>
-        <div className="flex flex-1 flex-col p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+
+          <span className="absolute bottom-3 left-3 inline-flex items-center rounded-full border border-primary/40 bg-background/85 px-2.5 py-1 text-[11px] font-medium text-primary backdrop-blur-sm">
             {project.category}
-          </p>
-          <h3 id={headingId} className="mt-2 font-display text-xl text-foreground">
+          </span>
+        </div>
+
+        <div className="flex flex-1 flex-col p-5">
+          <h3
+            id={headingId}
+            className="font-display text-[1.05rem] leading-snug text-foreground"
+          >
             {project.title}
           </h3>
-          <p className="mt-3 flex-1 text-sm leading-6 text-muted">
+          <p className="mt-2.5 flex-1 text-[13px] leading-6 text-muted">
             {project.description}
           </p>
           <div className="mt-4">

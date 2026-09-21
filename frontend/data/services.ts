@@ -4,34 +4,29 @@ export const services: Service[] = [
   {
     title: "AI Agents",
     description:
-      "Multi-agent systems that reason, use tools and execute workflows.",
-    technologies: ["LangGraph", "CrewAI", "MCP", "Tool Calling"],
+      "Multi-agent systems, task automation, tool calling, and MCP integration.",
+    technologies: ["LangGraph", "CrewAI", "AutoGen", "MCP"],
     icon: "agents",
   },
   {
     title: "RAG & Knowledge Systems",
     description:
-      "Intelligent knowledge systems that retrieve and reason over business information.",
-    technologies: [
-      "MongoDB Vector Search",
-      "Pinecone",
-      "Semantic Search",
-      "Agentic RAG",
-    ],
+      "Semantic search, vector databases, document processing, and grounded responses.",
+    technologies: ["MongoDB", "Pinecone", "ChromaDB", "LlamaIndex"],
     icon: "rag",
   },
   {
     title: "Business Automation",
     description:
-      "Connected workflows that automate repetitive business processes.",
-    technologies: ["n8n", "Webhooks", "REST APIs", "CRM Automation"],
+      "n8n workflows, CRM integration, API automation, and email and webhook systems.",
+    technologies: ["n8n", "Make", "Zapier", "REST APIs"],
     icon: "automation",
   },
   {
     title: "Voice AI",
     description:
-      "Voice interfaces that connect speech, AI reasoning and automation.",
-    technologies: ["Speech-to-Text", "LLMs", "Text-to-Speech", "WebSockets"],
+      "Voice assistants, customer support, sales agents, and real-time communication.",
+    technologies: ["STT", "LLM", "TTS", "WebSockets"],
     icon: "voice",
   },
 ];

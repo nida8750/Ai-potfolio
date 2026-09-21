@@ -52,7 +52,7 @@ export function About() {
           </ul>
         </div>
         <GlowCard className="mx-auto w-full max-w-md p-6">
-          <HeroCharacter idPrefix="about-core" />
+          <HeroCharacter decorative />
           <p className="mt-4 text-center text-sm text-muted">{ROLE}</p>
         </GlowCard>
       </Container>
