@@ -1,3 +1,4 @@
+import "server-only";
 import { isCognitoConfigured } from "@/lib/env";
 import {
   cognitoConfirm,

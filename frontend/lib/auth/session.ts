@@ -1,9 +1,11 @@
+import "server-only";
 import { cookies } from "next/headers";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { isProduction, requireSessionSecret } from "@/lib/env";
+import { SESSION_COOKIE } from "@/lib/auth/cookie";
 import type { UserRole } from "@/types/user";
 
-export const SESSION_COOKIE = "nida_session";
+export { SESSION_COOKIE };
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
 export interface SessionPayload {

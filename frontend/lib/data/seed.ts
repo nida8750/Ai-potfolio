@@ -1,3 +1,4 @@
+import "server-only";
 import { projects as seedProjects } from "@/data/projects";
 import { services as seedServices } from "@/data/services";
 import { env } from "@/lib/env";
