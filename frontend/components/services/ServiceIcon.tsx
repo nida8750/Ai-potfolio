@@ -30,7 +30,7 @@ export function ServiceIcon({ name, className }: ServiceIconProps) {
   return (
     <span
       className={cn(
-        "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-primary/25 bg-primary/10 text-primary shadow-[0_0_18px_rgb(139_92_246_/_0.2)]",
+        "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-primary/25 bg-primary/10 text-primary shadow-[0_0_18px_rgb(139_92_246_/_0.2)] transition-colors duration-300 group-hover:border-accent/40 group-hover:bg-accent/10 group-hover:text-accent motion-reduce:transition-none",
         className,
       )}
     >

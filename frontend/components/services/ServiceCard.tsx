@@ -1,14 +1,31 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { Service } from "@/types/service";
 import { Badge } from "@/components/ui/Badge";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { ServiceIcon } from "@/components/services/ServiceIcon";
+import { fadeUp } from "@/lib/animations";
 
 export interface ServiceCardProps {
   service: Service;
   index: number;
+}
+
+export function ServicesIntro({ children }: { children: ReactNode }) {
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <motion.div
+      variants={fadeUp}
+      initial={reduceMotion ? false : "hidden"}
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.4 }}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
 export function ServiceCard({ service, index }: ServiceCardProps) {
@@ -18,17 +35,21 @@ export function ServiceCard({ service, index }: ServiceCardProps) {
   return (
     <motion.article
       aria-labelledby={headingId}
-      initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      variants={fadeUp}
+      initial={reduceMotion ? false : "hidden"}
+      whileInView="visible"
       viewport={{ once: true, amount: 0.25 }}
       transition={
         reduceMotion
           ? { duration: 0 }
-          : { duration: 0.4, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }
+          : { delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }
       }
       className="h-full"
     >
-      <GlassCard hover className="flex h-full flex-col p-6 motion-reduce:transition-none">
+      <GlassCard
+        hover
+        className="group flex h-full flex-col p-6 motion-reduce:transition-none"
+      >
         <ServiceIcon name={service.icon ?? service.title} />
         <h3 id={headingId} className="mt-5 font-display text-xl text-foreground">
           {service.title}
