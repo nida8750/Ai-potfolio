@@ -32,10 +32,13 @@ treated as missing.
 
 ## Apply the schema
 
-Until the database password and keys exist, do not run this against a live
-project from this environment. When they arrive:
+`is_admin()` is created after `profiles` so a fresh apply can resolve the
+relation. Direct `db.<ref>.supabase.co:5432` may be unreachable from IPv4-only
+runtimes; the session pooler in `ap-south-1` is the fallback host.
 
-1. Open the SQL editor for `wpdslwonqowelbrublju`, or use the Supabase CLI.
+When applying from a machine that can reach Postgres:
+
+1. Open the SQL editor for `wpdslwonqowelbrublju`, or connect with `sslmode=require`.
 2. Run `supabase/migrations/0001_init.sql`.
 3. Run `supabase/migrations/0002_seed.sql`.
 

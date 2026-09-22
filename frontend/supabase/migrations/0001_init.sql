@@ -18,25 +18,6 @@ begin
 end;
 $$;
 
-create or replace function public.is_admin()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1
-    from public.profiles
-    where id = auth.uid()
-      and role = 'ADMIN'
-      and status = 'active'
-  );
-$$;
-
-revoke all on function public.is_admin() from public;
-grant execute on function public.is_admin() to anon, authenticated;
-
 -- ---------------------------------------------------------------------------
 -- Tables
 -- ---------------------------------------------------------------------------
@@ -192,6 +173,26 @@ create index if not exists inquiries_user_id_idx on public.inquiries (user_id, c
 create index if not exists orders_user_id_idx on public.orders (user_id, created_at desc);
 create index if not exists payments_user_id_idx on public.payments (user_id, created_at desc);
 create index if not exists notifications_user_id_idx on public.notifications (user_id, created_at desc);
+
+-- Defined after profiles so the SQL function can resolve the relation.
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and role = 'ADMIN'
+      and status = 'active'
+  );
+$$;
+
+revoke all on function public.is_admin() from public;
+grant execute on function public.is_admin() to anon, authenticated;
 
 -- ---------------------------------------------------------------------------
 -- Triggers
