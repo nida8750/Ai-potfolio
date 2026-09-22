@@ -23,7 +23,7 @@ import type { CredentialRecord } from "@/lib/data/local";
 import type { PlatformOverview, PlatformRepository } from "@/lib/data/local-repository";
 import type { AuditLog } from "@/types/audit";
 import type { Inquiry, InquiryStatus } from "@/types/inquiry";
-import type { AppNotification, NotificationType } from "@/types/notification";
+import type { NotificationType } from "@/types/notification";
 import type { Order } from "@/types/order";
 import type { PaymentRecord, ProcessedEvent } from "@/types/payment";
 import type { StoredProject } from "@/types/project";
@@ -38,11 +38,14 @@ function credentialsUnsupported(): never {
 }
 
 function throwIfError<T>(
-  result: { data: T; error: { message: string } | null },
+  result: { data: T | null; error: { message: string } | null },
   context: string,
 ): T {
   if (result.error) {
     throw new Error(`Supabase ${context}: ${result.error.message}`);
+  }
+  if (result.data === null) {
+    throw new Error(`Supabase ${context}: no data`);
   }
   return result.data;
 }

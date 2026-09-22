@@ -49,7 +49,7 @@ export function isBlankOrPlaceholder(value: string | undefined): boolean {
 }
 
 export function databaseUrlHasRealPassword(url: string | undefined): boolean {
-  if (isBlankOrPlaceholder(url)) {
+  if (!url || isBlankOrPlaceholder(url)) {
     return false;
   }
   try {
