@@ -1,5 +1,5 @@
 import "server-only";
-import { isCognitoConfigured } from "@/lib/env";
+import { activeAuthProvider, env, isCognitoConfigured, isSupabaseConfigured } from "@/lib/env";
 import {
   cognitoConfirm,
   cognitoConfirmForgotPassword,
@@ -7,25 +7,46 @@ import {
   cognitoLogin,
   cognitoSignUp,
 } from "@/lib/aws/auth";
+import { AuthError } from "@/lib/auth/errors";
 import { hashPassword, hashValue, verifyPassword } from "@/lib/auth/password";
 import { clearSession, readSession, writeSession } from "@/lib/auth/session";
 import { createCode } from "@/lib/data/ids";
 import { nextUserRole, repository } from "@/lib/data/repository";
 import { logEvent } from "@/lib/security/logger";
+import {
+  supabaseAuthUser,
+  supabaseConfirm,
+  supabaseForgotPassword,
+  supabaseLogin,
+  supabaseResetPassword,
+  supabaseSignOut,
+  supabaseSignUp,
+} from "@/lib/supabase/auth";
 import type { AuthUser } from "@/lib/auth/session";
 import type { UserProfile } from "@/types/user";
 
-export class AuthError extends Error {
-  constructor(
-    message: string,
-    public code: string,
-    public status = 400,
-  ) {
-    super(message);
-  }
-}
+export { AuthError };
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
+  if (isSupabaseConfigured()) {
+    const auth = await supabaseAuthUser();
+    if (!auth) {
+      return null;
+    }
+    const profile =
+      (await repository.getUser(auth.id)) ??
+      (auth.email ? await repository.getUserByEmail(auth.email) : undefined);
+    if (!profile || profile.status !== "active") {
+      return null;
+    }
+    return {
+      id: profile.id,
+      email: profile.email,
+      name: profile.name,
+      role: profile.role,
+    };
+  }
+
   const session = await readSession();
   if (!session) {
     return null;
@@ -60,21 +81,26 @@ export async function requireAdmin(): Promise<AuthUser> {
 }
 
 async function ensureProfile(input: {
+  id?: string;
   email: string;
   name: string;
   phone?: string;
   cognitoSub?: string;
+  supabaseUserId?: string;
 }): Promise<UserProfile> {
-  const existing = await repository.getUserByEmail(input.email);
+  const existing =
+    (input.id ? await repository.getUser(input.id) : undefined) ??
+    (await repository.getUserByEmail(input.email));
   if (existing) {
     return existing;
   }
   return repository.createUser({
-    id: crypto.randomUUID(),
+    id: input.id ?? input.supabaseUserId ?? crypto.randomUUID(),
     email: input.email.toLowerCase(),
     name: input.name,
     phone: input.phone,
     cognitoSub: input.cognitoSub,
+    supabaseUserId: input.supabaseUserId,
     role: await nextUserRole(),
     status: "active",
   });
@@ -89,6 +115,24 @@ export async function signUp(input: {
   const email = input.email.toLowerCase();
   if (await repository.getUserByEmail(email)) {
     throw new AuthError("An account with this email already exists.", "EMAIL_TAKEN", 409);
+  }
+
+  if (isSupabaseConfigured()) {
+    const created = await supabaseSignUp({
+      email,
+      password: input.password,
+      name: input.name,
+      phone: input.phone,
+    });
+    await ensureProfile({
+      id: created.userId,
+      email,
+      name: input.name,
+      phone: input.phone,
+      supabaseUserId: created.userId,
+    });
+    logEvent({ action: "auth.signup", result: "ok", userId: created.userId });
+    return { confirmationRequired: created.confirmationRequired };
   }
 
   if (isCognitoConfigured()) {
@@ -121,6 +165,10 @@ export async function signUp(input: {
 
 export async function verifyEmail(email: string, code: string): Promise<void> {
   const normalized = email.toLowerCase();
+  if (isSupabaseConfigured()) {
+    await supabaseConfirm(normalized, code);
+    return;
+  }
   if (isCognitoConfigured()) {
     await cognitoConfirm(normalized, code);
     return;
@@ -134,6 +182,17 @@ export async function verifyEmail(email: string, code: string): Promise<void> {
 
 export async function signIn(email: string, password: string): Promise<AuthUser> {
   const normalized = email.toLowerCase();
+
+  if (isSupabaseConfigured()) {
+    const auth = await supabaseLogin(normalized, password);
+    const profile =
+      (await repository.getUser(auth.userId)) ?? (await repository.getUserByEmail(normalized));
+    if (!profile || profile.status !== "active") {
+      throw new AuthError("Account is not available.", "INACTIVE", 403);
+    }
+    await writeSession(profile.id, profile.email);
+    return { id: profile.id, email: profile.email, name: profile.name, role: profile.role };
+  }
 
   if (isCognitoConfigured()) {
     await cognitoLogin(normalized, password);
@@ -161,11 +220,18 @@ export async function signIn(email: string, password: string): Promise<AuthUser>
 }
 
 export async function signOutUser(): Promise<void> {
+  if (isSupabaseConfigured()) {
+    await supabaseSignOut();
+  }
   await clearSession();
 }
 
 export async function forgotPassword(email: string): Promise<{ devCode?: string }> {
   const normalized = email.toLowerCase();
+  if (isSupabaseConfigured()) {
+    await supabaseForgotPassword(normalized, `${env.appUrl}/reset-password`);
+    return {};
+  }
   if (isCognitoConfigured()) {
     await cognitoForgotPassword(normalized);
     return {};
@@ -185,6 +251,10 @@ export async function forgotPassword(email: string): Promise<{ devCode?: string 
 
 export async function resetPassword(email: string, code: string, password: string): Promise<void> {
   const normalized = email.toLowerCase();
+  if (isSupabaseConfigured()) {
+    await supabaseResetPassword(normalized, code, password);
+    return;
+  }
   if (isCognitoConfigured()) {
     await cognitoConfirmForgotPassword(normalized, code, password);
     return;
@@ -205,4 +275,8 @@ export async function resetPassword(email: string, code: string, password: strin
     resetExpiresAt: undefined,
     verified: true,
   });
+}
+
+export function currentAuthProvider() {
+  return activeAuthProvider();
 }

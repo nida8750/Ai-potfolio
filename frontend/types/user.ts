@@ -3,6 +3,7 @@ export type UserRole = "USER" | "ADMIN";
 export interface UserProfile {
   id: string;
   cognitoSub?: string;
+  supabaseUserId?: string;
   email: string;
   name: string;
   phone?: string;
@@ -13,4 +14,4 @@ export interface UserProfile {
   updatedAt: string;
 }
 
-export type PublicUser = Omit<UserProfile, "cognitoSub">;
+export type PublicUser = Omit<UserProfile, "cognitoSub" | "supabaseUserId">;

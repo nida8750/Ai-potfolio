@@ -2,24 +2,15 @@ import { PageHeader } from "@/components/app/PageHeader";
 import { StatCard } from "@/components/app/StatCard";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { requireAdminOrRedirect } from "@/lib/auth/guards";
-import { activeDataStore, repository } from "@/lib/data/repository";
-import { isCognitoConfigured, isN8nConfigured, isS3Configured } from "@/lib/env";
-import { configuredProviders } from "@/lib/payments";
+import { repository } from "@/lib/data/repository";
+import { integrationRows } from "@/lib/integrations";
 
 export default async function AdminOverviewPage() {
   await requireAdminOrRedirect("/admin");
 
   // Counted from stored records: an empty platform shows zeros.
   const overview = await repository.overview();
-  const providers = configuredProviders();
-
-  const integrations: Array<[string, string]> = [
-    ["Data store", activeDataStore() === "dynamodb" ? "DynamoDB" : "Local file store"],
-    ["Authentication", isCognitoConfigured() ? "AWS Cognito" : "Local development"],
-    ["File storage", isS3Configured() ? "Amazon S3" : "Not configured"],
-    ["Automation", isN8nConfigured() ? "n8n webhooks" : "Not configured"],
-    ["Payments", providers.length ? providers.join(", ") : "Not configured"],
-  ];
+  const integrations = integrationRows();
 
   return (
     <div className="space-y-6">

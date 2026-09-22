@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { handleRoute, parseBody } from "@/lib/api/route";
 import { requireAdmin, requireAuth } from "@/lib/auth/server";
-import { presignUpload } from "@/lib/aws/s3";
-import { isS3Configured } from "@/lib/env";
+import { isStorageConfigured } from "@/lib/env";
+import { presignUpload } from "@/lib/storage";
 import { jsonError, jsonSuccess } from "@/lib/security/http";
 
 const uploadSchema = z.object({
@@ -25,10 +25,10 @@ export async function POST(request: Request) {
         await requireAdmin();
       }
 
-      if (!isS3Configured()) {
+      if (!isStorageConfigured()) {
         return jsonError(
           "STORAGE_UNAVAILABLE",
-          "S3 is not configured, so uploads are disabled.",
+          "File storage is not configured, so uploads are disabled.",
           503,
         );
       }

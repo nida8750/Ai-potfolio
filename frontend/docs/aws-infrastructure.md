@@ -3,8 +3,10 @@
 The application code is written against these resources but **none of them are
 provisioned or tested yet** — no AWS credentials exist in this environment. Set
 the matching variables in `.env.local` (see `.env.example`) to switch each
-integration on. Until then the platform runs on a local file datastore and a
-local credential store.
+integration on. Production data, auth, and files are intended to go through
+Supabase (`docs/supabase.md`). AWS remains an optional alternative. Until the
+matching keys exist the platform runs on a local file datastore and a local
+credential store.
 
 ## DynamoDB
 

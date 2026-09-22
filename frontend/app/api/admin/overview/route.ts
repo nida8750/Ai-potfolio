@@ -1,8 +1,7 @@
 import { handleRoute, noStore } from "@/lib/api/route";
 import { requireAdmin } from "@/lib/auth/server";
-import { activeDataStore, repository } from "@/lib/data/repository";
-import { isCognitoConfigured, isN8nConfigured, isS3Configured } from "@/lib/env";
-import { configuredProviders } from "@/lib/payments";
+import { repository } from "@/lib/data/repository";
+import { integrationStatus } from "@/lib/integrations";
 import { jsonSuccess } from "@/lib/security/http";
 
 export async function GET(request: Request) {
@@ -16,13 +15,7 @@ export async function GET(request: Request) {
     return noStore(
       jsonSuccess({
         overview,
-        integrations: {
-          dataStore: activeDataStore(),
-          cognito: isCognitoConfigured(),
-          s3: isS3Configured(),
-          n8n: isN8nConfigured(),
-          paymentProviders: configuredProviders(),
-        },
+        integrations: integrationStatus(),
       }),
     );
   });

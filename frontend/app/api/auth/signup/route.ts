@@ -15,8 +15,9 @@ export async function POST(request: Request) {
       return jsonSuccess(
         {
           confirmationRequired: result.confirmationRequired,
-          // Without Cognito there is no mail delivery, so the code is surfaced
-          // locally instead of pretending an email was sent.
+          // Local development has no mail delivery, so the code is surfaced
+          // instead of pretending an email was sent. Supabase and Cognito
+          // send their own confirmation mail when those keys are set.
           verificationCode: isProduction() ? undefined : result.devCode,
         },
         201,

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { SESSION_COOKIE } from "@/lib/auth/cookie";
+import { hasSessionCookie } from "@/lib/auth/cookie";
 
 /**
  * Convenience redirect only. It checks that a session cookie is present, not
@@ -8,7 +8,7 @@ import { SESSION_COOKIE } from "@/lib/auth/cookie";
  * route repeats the real authorization check on the server.
  */
 export function proxy(request: NextRequest) {
-  const hasSession = Boolean(request.cookies.get(SESSION_COOKIE)?.value);
+  const hasSession = hasSessionCookie(request.cookies.getAll());
 
   if (!hasSession) {
     const loginUrl = new URL("/login", request.url);

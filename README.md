@@ -37,10 +37,17 @@ credentials: data is kept in a local file store, authentication uses a local
 credential store, and payments and automation stay switched off until their
 variables are set.
 
-Never put AWS, Stripe, PayPal, or n8n secrets in `NEXT_PUBLIC_*`.
+The intended production backend is Supabase project `wpdslwonqowelbrublju`.
+The public URL is already in `.env.example`. Live Auth, Postgres, and Storage
+stay off until `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`,
+and a real `DATABASE_URL` password are set. `[YOUR-PASSWORD]` is not a secret.
+
+Never put the service role key, `DATABASE_URL`, AWS, Stripe, PayPal, or n8n
+secrets in `NEXT_PUBLIC_*`.
 
 ## Documentation
 
 - `frontend/README.md` — application overview, layout, and security posture
+- `frontend/docs/supabase.md` — Postgres schema, RLS, Auth, Storage
 - `frontend/docs/aws-infrastructure.md` — DynamoDB, Cognito, S3, IAM
 - `frontend/docs/automation-and-payments.md` — n8n, Stripe, PayPal

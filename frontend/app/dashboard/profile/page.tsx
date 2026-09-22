@@ -6,7 +6,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { requireAuthOrRedirect } from "@/lib/auth/guards";
 import { toPublicUser } from "@/lib/data/presenters";
 import { repository } from "@/lib/data/repository";
-import { isCognitoConfigured } from "@/lib/env";
+import { activeAuthProvider } from "@/lib/env";
 import { formatDate } from "@/lib/format";
 
 export default async function ProfilePage() {
@@ -56,9 +56,11 @@ export default async function ProfilePage() {
             </div>
           </dl>
           <p className="mt-4 text-xs leading-5 text-muted">
-            {isCognitoConfigured()
-              ? "Credentials are managed by AWS Cognito."
-              : "Cognito is not configured in this environment, so a local development credential store is used instead."}
+            {activeAuthProvider() === "supabase"
+              ? "Credentials are managed by Supabase Auth."
+              : activeAuthProvider() === "cognito"
+                ? "Credentials are managed by AWS Cognito."
+                : "Supabase and Cognito are not configured in this environment, so a local development credential store is used instead."}
           </p>
         </GlassCard>
       </div>
