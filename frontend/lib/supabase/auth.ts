@@ -118,3 +118,10 @@ export async function supabaseAuthUser(): Promise<{ id: string; email: string } 
   }
   return { id: data.user.id, email: data.user.email ?? "" };
 }
+
+/** Supabase access token for FastAPI Bearer auth. Null when not configured. */
+export async function supabaseAccessToken(): Promise<string | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? null;
+}

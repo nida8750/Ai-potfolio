@@ -12,7 +12,16 @@ npm install
 npm run dev
 ```
 
-The app binds to `0.0.0.0` on port **43127**.
+The app binds to `0.0.0.0` on port **43127**. FastAPI (when present) binds to **8000**.
+
+```bash
+cd backend
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+Or run both with Docker: `docker compose up --build -d`.
+
+Next.js talks to FastAPI through server-only `BACKEND_URL` and `INTERNAL_API_KEY`. Check `GET /api/health`.
 
 Open [http://localhost:43127](http://localhost:43127).
 

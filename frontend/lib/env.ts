@@ -139,6 +139,8 @@ export const env = {
   n8nWebhookInvoiceflow: read("N8N_WEBHOOK_INVOICEFLOW"),
   n8nWebhookSupportsync: read("N8N_WEBHOOK_SUPPORTSYNC"),
   n8nWebhookContentflow: read("N8N_WEBHOOK_CONTENTFLOW"),
+  backendUrl: read("BACKEND_URL") ?? read("NEXT_PUBLIC_BACKEND_URL") ?? "http://127.0.0.1:8000",
+  internalApiKey: read("INTERNAL_API_KEY"),
   stripeSecretKey: read("STRIPE_SECRET_KEY"),
   stripeWebhookSecret: read("STRIPE_WEBHOOK_SECRET"),
   stripePublishableKey: read("NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"),
@@ -201,6 +203,14 @@ export function isS3Configured(): boolean {
 
 export function isSupabaseStorageConfigured(): boolean {
   return isSupabaseConfigured();
+}
+
+export function backendBaseUrl(): string {
+  return (env.backendUrl ?? "http://127.0.0.1:8000").replace(/\/+$/, "");
+}
+
+export function isBackendKeyConfigured(): boolean {
+  return !isBlankOrPlaceholder(env.internalApiKey);
 }
 
 export function isN8nConfigured(): boolean {

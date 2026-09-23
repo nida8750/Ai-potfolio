@@ -14,7 +14,7 @@ export const HERO_COPY =
   "I build intelligent AI agents, RAG systems, and automation workflows that help businesses save time, increase productivity, and scale with AI.";
 export const RESUME_PATH = "/resume/resume.pdf";
 export const RESUME_FILENAME = "Nida-Asghar-Resume.pdf";
-export const HERO_CHARACTER = "/images/hero/nida-character.png";
+export const HERO_CHARACTER = "/images/hero/nida-character-v3.png";
 
 export const HERO_STATS = [
   { value: "4+", label: "Real Projects" },

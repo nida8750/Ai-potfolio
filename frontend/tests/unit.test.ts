@@ -260,3 +260,28 @@ describe("n8n signatures and automation catalog", () => {
     assert.equal(isAutomationProductId("rm_rf"), false);
   });
 });
+
+describe("FastAPI backend URL", () => {
+  it("strips a trailing slash", async () => {
+    const { backendBaseUrl } = await import("@/lib/env");
+    assert.equal(backendBaseUrl().endsWith("/"), false);
+  });
+});
+
+describe("client agent page awareness", () => {
+  it("maps hashes to portfolio sections and hides app routes", async () => {
+    const {
+      isClientAgentHiddenPath,
+      sectionFromHash,
+      suggestionsForSection,
+    } = await import("@/lib/client-agent/config");
+    assert.equal(sectionFromHash("#projects"), "projects");
+    assert.equal(sectionFromHash("#about"), "about");
+    assert.equal(sectionFromHash(""), "home");
+    assert.equal(isClientAgentHiddenPath("/dashboard"), true);
+    assert.equal(isClientAgentHiddenPath("/login"), true);
+    assert.equal(isClientAgentHiddenPath("/"), false);
+    assert.match(suggestionsForSection("contact")[0] ?? "", /start a project/i);
+    assert.match(suggestionsForSection("services")[0] ?? "", /service/i);
+  });
+});

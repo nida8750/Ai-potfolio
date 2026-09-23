@@ -40,7 +40,7 @@ export async function Contact() {
     <section
       id="contact"
       aria-labelledby="contact-heading"
-      className="relative overflow-hidden py-14 md:py-20 lg:py-24"
+      className="relative overflow-hidden py-14 pb-28 md:py-20 md:pb-28 lg:py-24 lg:pb-28"
     >
       <Container className="relative">
         <ServicesIntro>

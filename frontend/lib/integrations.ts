@@ -50,6 +50,7 @@ export function integrationRows(): Array<[string, string]> {
     ["File storage", storageLabel()],
     ["Automation", isN8nConfigured() ? "n8n webhooks" : "Not configured"],
     ["Payments", payments.length ? payments.join(", ") : "Not configured"],
+    ["FastAPI", "Checked live at /api/health"],
   ];
 }
 

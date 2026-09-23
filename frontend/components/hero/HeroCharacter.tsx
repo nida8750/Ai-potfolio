@@ -18,7 +18,7 @@ export function HeroCharacter({
     <div className={cn("relative mx-auto w-full max-w-[460px]", className)}>
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-[radial-gradient(circle_at_50%_45%,rgb(139_92_246_/_0.38),transparent_62%)] blur-2xl"
+        className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-[radial-gradient(circle_at_50%_42%,rgb(124_58_237_/_0.28),rgb(56_189_248_/_0.08)_42%,transparent_68%)] blur-2xl"
       />
       <Image
         src={HERO_CHARACTER}
@@ -28,7 +28,7 @@ export function HeroCharacter({
         height={1024}
         priority={priority}
         sizes="(max-width: 1023px) 80vw, 420px"
-        className="h-auto w-full [mask-image:radial-gradient(circle_at_50%_48%,black_62%,transparent_78%)]"
+        className="h-auto w-full [mask-image:radial-gradient(circle_at_50%_42%,black_68%,transparent_84%)]"
       />
     </div>
   );

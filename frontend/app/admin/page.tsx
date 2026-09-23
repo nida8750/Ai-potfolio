@@ -1,9 +1,11 @@
 import { PageHeader } from "@/components/app/PageHeader";
 import { StatCard } from "@/components/app/StatCard";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { backendInternalGet } from "@/lib/api/backend-health";
 import { requireAdminOrRedirect } from "@/lib/auth/guards";
 import { repository } from "@/lib/data/repository";
 import { integrationRows } from "@/lib/integrations";
+import type { DashboardOverview } from "@/lib/api/backend-types";
 
 export default async function AdminOverviewPage() {
   await requireAdminOrRedirect("/admin");
@@ -11,6 +13,7 @@ export default async function AdminOverviewPage() {
   // Counted from stored records: an empty platform shows zeros.
   const overview = await repository.overview();
   const integrations = integrationRows();
+  const ai = await backendInternalGet<DashboardOverview>("/api/v1/internal/dashboard");
 
   return (
     <div className="space-y-6">
@@ -34,6 +37,8 @@ export default async function AdminOverviewPage() {
         <StatCard label="Users" value={overview.users} />
         <StatCard label="Pending orders" value={overview.pendingOrders} />
         <StatCard label="Paid orders" value={overview.paidOrders} />
+        <StatCard label="AI agents" value={ai?.total_agents ?? 0} />
+        <StatCard label="AI tasks" value={ai?.total_tasks ?? 0} />
       </div>
 
       <GlassCard className="p-5">
