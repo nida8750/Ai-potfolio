@@ -233,3 +233,30 @@ describe("sanitizing", () => {
     assert.equal(sanitizeMultiline("<b>line</b>"), "line");
   });
 });
+
+describe("n8n signatures and automation catalog", () => {
+  it("accepts a correctly signed payload and rejects a tampered one", async () => {
+    const { signN8nPayload, verifyN8nSignature } = await import("@/lib/n8n/signature");
+    const secret = "n8n-test-secret-value";
+    const body = '{"event":"inquiry.created"}';
+    const timestamp = "1700000000000";
+    const signature = signN8nPayload(secret, body, timestamp);
+    assert.equal(verifyN8nSignature(secret, body, timestamp, signature, 1_700_000_000_000), true);
+    assert.equal(
+      verifyN8nSignature(secret, `${body} `, timestamp, signature, 1_700_000_000_000),
+      false,
+    );
+  });
+
+  it("exposes the five product webhooks", async () => {
+    const { AUTOMATION_PRODUCT_IDS, businessAutomations, isAutomationProductId } =
+      await import("@/data/automations");
+    assert.equal(AUTOMATION_PRODUCT_IDS.length, 5);
+    assert.equal(businessAutomations.length, 5);
+    for (const id of AUTOMATION_PRODUCT_IDS) {
+      assert.equal(isAutomationProductId(id), true);
+      assert.equal(businessAutomations.some((item) => item.id === id), true);
+    }
+    assert.equal(isAutomationProductId("rm_rf"), false);
+  });
+});

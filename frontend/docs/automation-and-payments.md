@@ -5,13 +5,23 @@ stay inert until their credentials exist.
 
 ## n8n
 
-Set `N8N_WEBHOOK_BASE_URL` and `N8N_WEBHOOK_SECRET`.
+Set the product webhook URLs (or `N8N_WEBHOOK_BASE_URL`). Optional
+`N8N_WEBHOOK_SECRET` is used only when workflows verify HMAC.
 
 The browser never calls n8n. A request goes to a Next.js route, the route
 writes to the datastore, and only then is the event dispatched from the server.
 
-Each dispatch is a `POST` to `<base>/<event-name>` with dots replaced by
-hyphens, carrying:
+| Event | Env | Webhook URL |
+| --- | --- | --- |
+| `inquiry.created` | `N8N_WEBHOOK_LEADFLOW` | `http://localhost:5678/webhook/nida-ai/leadflow` |
+| `admin.alert`, `followup.scheduled` | `N8N_WEBHOOK_MAILPILOT` | `http://localhost:5678/webhook/nida-ai/mailpilot` |
+| `order.created`, `payment.*`, `order.status_changed` | `N8N_WEBHOOK_INVOICEFLOW` | `http://localhost:5678/webhook/nida-ai/invoiceflow` |
+| `customer.notification` | `N8N_WEBHOOK_SUPPORTSYNC` | `http://localhost:5678/webhook/nida-ai/supportsync` |
+| `content.requested` | `N8N_WEBHOOK_CONTENTFLOW` | `http://localhost:5678/webhook/nida-ai/contentflow` |
+
+Authenticated manual trigger: `POST /api/automations/{product}`.
+
+Each request carries:
 
 | Header | Meaning |
 | --- | --- |

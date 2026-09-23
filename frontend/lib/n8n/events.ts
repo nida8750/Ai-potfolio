@@ -18,6 +18,7 @@ async function notifyAdmins(
       repository.createNotification({ userId: admin.id, type, title, message }),
     ),
   );
+  await dispatchToN8n("admin.alert", { type, title, message });
 }
 
 export async function onInquiryCreated(inquiry: Inquiry): Promise<void> {
@@ -119,6 +120,28 @@ export async function onPaymentRefunded(
     amount: payment.amount,
     currency: payment.currency,
   });
+}
+
+export async function onInquiryStatusChanged(inquiry: Inquiry, previous: string): Promise<void> {
+  if (inquiry.userId) {
+    await repository.createNotification({
+      userId: inquiry.userId,
+      type: "INQUIRY_RECEIVED",
+      title: "Inquiry updated",
+      message: `Inquiry ${inquiry.id} moved from ${previous} to ${inquiry.status}.`,
+    });
+  }
+  await dispatchToN8n("customer.notification", {
+    inquiryId: inquiry.id,
+    userId: inquiry.userId,
+    previousStatus: previous,
+    status: inquiry.status,
+    email: inquiry.email,
+  });
+}
+
+export async function onContentRequested(payload: Record<string, unknown>): Promise<void> {
+  await dispatchToN8n("content.requested", payload);
 }
 
 export async function onOrderStatusChanged(order: Order, previous: string): Promise<void> {

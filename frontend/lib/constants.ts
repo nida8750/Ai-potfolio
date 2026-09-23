@@ -58,7 +58,7 @@ export const PROCESS_STEPS = [
 export const FOOTER_SERVICES = [
   { label: "AI Agents", href: "#agents" },
   { label: "RAG", href: "#services" },
-  { label: "Automation", href: "#services" },
+  { label: "Automation", href: "#automation" },
   { label: "Voice AI", href: "#services" },
 ] as const;
 

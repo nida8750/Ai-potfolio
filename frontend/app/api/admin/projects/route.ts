@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth/server";
 import { ConflictError, createProject } from "@/lib/data/mutations";
 import { repository } from "@/lib/data/repository";
 import { revalidatePublicContent } from "@/lib/content/revalidate";
+import { onContentRequested } from "@/lib/n8n/events";
 import { jsonError, jsonSuccess } from "@/lib/security/http";
 import { projectInputSchema } from "@/lib/validation/project";
 
@@ -29,6 +30,13 @@ export async function POST(request: Request) {
         metadata: { title: project.title, isPublished: project.isPublished },
       });
       revalidatePublicContent();
+      await onContentRequested({
+        projectId: project.id,
+        title: project.title,
+        slug: project.slug,
+        category: project.category,
+        description: project.description,
+      });
       return jsonSuccess({ project }, 201);
     } catch (error) {
       if (error instanceof ConflictError) {

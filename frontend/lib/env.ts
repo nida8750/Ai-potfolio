@@ -134,6 +134,11 @@ export const env = {
   s3BucketName: read("S3_BUCKET_NAME"),
   n8nWebhookBaseUrl: read("N8N_WEBHOOK_BASE_URL"),
   n8nWebhookSecret: read("N8N_WEBHOOK_SECRET"),
+  n8nWebhookLeadflow: read("N8N_WEBHOOK_LEADFLOW"),
+  n8nWebhookMailpilot: read("N8N_WEBHOOK_MAILPILOT"),
+  n8nWebhookInvoiceflow: read("N8N_WEBHOOK_INVOICEFLOW"),
+  n8nWebhookSupportsync: read("N8N_WEBHOOK_SUPPORTSYNC"),
+  n8nWebhookContentflow: read("N8N_WEBHOOK_CONTENTFLOW"),
   stripeSecretKey: read("STRIPE_SECRET_KEY"),
   stripeWebhookSecret: read("STRIPE_WEBHOOK_SECRET"),
   stripePublishableKey: read("NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"),
@@ -199,7 +204,14 @@ export function isSupabaseStorageConfigured(): boolean {
 }
 
 export function isN8nConfigured(): boolean {
-  return Boolean(env.n8nWebhookBaseUrl && env.n8nWebhookSecret);
+  return Boolean(
+    env.n8nWebhookBaseUrl ||
+      env.n8nWebhookLeadflow ||
+      env.n8nWebhookMailpilot ||
+      env.n8nWebhookInvoiceflow ||
+      env.n8nWebhookSupportsync ||
+      env.n8nWebhookContentflow,
+  );
 }
 
 export function activeDataStore(): ActiveDataStore {

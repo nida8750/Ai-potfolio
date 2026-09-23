@@ -2,6 +2,7 @@ import { z } from "zod";
 import { handleRoute, parseBody } from "@/lib/api/route";
 import { requireAdmin } from "@/lib/auth/server";
 import { repository } from "@/lib/data/repository";
+import { onInquiryStatusChanged } from "@/lib/n8n/events";
 import { jsonError, jsonSuccess } from "@/lib/security/http";
 
 const inquiryPatchSchema = z.object({
@@ -17,9 +18,14 @@ export async function PATCH(
     const { id } = await params;
     const patch = await parseBody(request, inquiryPatchSchema);
 
+    const current = await repository.getInquiry(id);
     const inquiry = await repository.updateInquiry(id, { status: patch.status });
     if (!inquiry) {
       return jsonError("NOT_FOUND", "Inquiry not found.", 404);
+    }
+
+    if (current && current.status !== inquiry.status) {
+      await onInquiryStatusChanged(inquiry, current.status);
     }
 
     await repository.writeAudit({

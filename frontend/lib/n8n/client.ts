@@ -1,7 +1,9 @@
 import "server-only";
-import { createHmac } from "node:crypto";
 import { env, isN8nConfigured } from "@/lib/env";
+import { signN8nPayload, verifyN8nSignature } from "@/lib/n8n/signature";
 import { logEvent } from "@/lib/security/logger";
+
+export { signN8nPayload, verifyN8nSignature } from "@/lib/n8n/signature";
 
 export type N8nEventName =
   | "inquiry.created"
@@ -12,7 +14,8 @@ export type N8nEventName =
   | "order.status_changed"
   | "admin.alert"
   | "customer.notification"
-  | "followup.scheduled";
+  | "followup.scheduled"
+  | "content.requested";
 
 export type N8nDispatchResult =
   | { status: "skipped"; reason: "not_configured" }
@@ -21,15 +24,46 @@ export type N8nDispatchResult =
 
 const TIMEOUT_MS = 4000;
 
+type AutomationProduct =
+  | "leadflow"
+  | "mailpilot"
+  | "invoiceflow"
+  | "supportsync"
+  | "contentflow";
+
+const EVENT_PRODUCT: Record<N8nEventName, AutomationProduct> = {
+  "inquiry.created": "leadflow",
+  "admin.alert": "mailpilot",
+  "followup.scheduled": "mailpilot",
+  "order.created": "invoiceflow",
+  "payment.succeeded": "invoiceflow",
+  "payment.failed": "invoiceflow",
+  "payment.refunded": "invoiceflow",
+  "order.status_changed": "invoiceflow",
+  "customer.notification": "supportsync",
+  "content.requested": "contentflow",
+};
+
+const PRODUCT_ENV_URL: Record<AutomationProduct, string | undefined> = {
+  leadflow: env.n8nWebhookLeadflow,
+  mailpilot: env.n8nWebhookMailpilot,
+  invoiceflow: env.n8nWebhookInvoiceflow,
+  supportsync: env.n8nWebhookSupportsync,
+  contentflow: env.n8nWebhookContentflow,
+};
+
 function webhookUrl(event: N8nEventName): string {
+  const product = EVENT_PRODUCT[event];
+  const exact = PRODUCT_ENV_URL[product]?.replace(/\/+$/, "");
+  if (exact) {
+    return exact;
+  }
   const base = env.n8nWebhookBaseUrl?.replace(/\/+$/, "") ?? "";
-  return `${base}/${event.replace(/\./g, "-")}`;
+  return `${base}/nida-ai/${product}`;
 }
 
 function sign(body: string, timestamp: string): string {
-  return createHmac("sha256", env.n8nWebhookSecret ?? "")
-    .update(`${timestamp}.${body}`)
-    .digest("hex");
+  return signN8nPayload(env.n8nWebhookSecret ?? "", body, timestamp);
 }
 
 /**
@@ -97,10 +131,5 @@ export function verifyN8nCallback(
   if (!isN8nConfigured() || !timestamp || !signature) {
     return false;
   }
-  const age = Math.abs(Date.now() - Number(timestamp));
-  if (!Number.isFinite(age) || age > 5 * 60 * 1000) {
-    return false;
-  }
-  const expected = sign(body, timestamp);
-  return expected.length === signature.length && expected === signature;
+  return verifyN8nSignature(env.n8nWebhookSecret ?? "", body, timestamp, signature);
 }
