@@ -61,7 +61,7 @@ function emptyStore(): StoreShape {
 
 async function readStore(): Promise<StoreShape> {
   try {
-    const raw = await readFile(FILE, "utf8");
+    const raw = await readFile(/* turbopackIgnore: true */ FILE, "utf8");
     const parsed = JSON.parse(raw) as StoreShape;
     return {
       ...emptyStore(),
@@ -75,8 +75,12 @@ async function readStore(): Promise<StoreShape> {
 }
 
 async function persist(store: StoreShape): Promise<void> {
-  await mkdir(path.dirname(FILE), { recursive: true });
-  await writeFile(FILE, JSON.stringify(store, null, 2), "utf8");
+  await mkdir(/* turbopackIgnore: true */ path.dirname(FILE), { recursive: true });
+  await writeFile(
+    /* turbopackIgnore: true */ FILE,
+    JSON.stringify(store, null, 2),
+    "utf8",
+  );
 }
 
 export function withStore<T>(fn: (store: StoreShape) => Promise<T> | T): Promise<T> {

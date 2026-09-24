@@ -8,8 +8,8 @@
     "start": "next start --hostname 0.0.0.0 --port 43127",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "TSX_TSCONFIG_PATH=tsconfig.test.json node --import tsx --test tests/unit.test.ts tests/settlement.test.ts tests/supabase.test.ts",
-    "test:api": "TSX_TSCONFIG_PATH=tsconfig.test.json node --import tsx --test tests/api.test.ts"
+    "test": "node scripts/run-node-tests.mjs unit",
+    "test:api": "node scripts/run-node-tests.mjs api"
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.1136.0",

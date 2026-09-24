@@ -25,7 +25,7 @@ import {
   writeUiState,
 } from "@/lib/client-agent/config";
 import { stubAssistantReply } from "@/lib/client-agent/prompts";
-import type { ClientAgentMessage } from "@/lib/client-agent/types";
+import type { ClientAgentMessage, ClientAgentUiState } from "@/lib/client-agent/types";
 import { cn } from "@/lib/utils";
 
 function welcomeMessage(): ClientAgentMessage {
@@ -48,19 +48,14 @@ export function ClientAgent() {
   const [section, setSection] = useState(sectionFromHash(""));
   const [messages, setMessages] = useState<ClientAgentMessage[]>([welcomeMessage()]);
   const [greetingOpen, setGreetingOpen] = useState(false);
-  const [ui, setUi] = useState(emptyUiState);
-  const [ready, setReady] = useState(false);
+  const [, setUi] = useState(emptyUiState);
 
   const suggestions = useMemo(() => suggestionsForSection(section).slice(0, 4), [section]);
 
-  const persistUi = useCallback((next: typeof ui) => {
+  const persistUi = useCallback((patch: Partial<ClientAgentUiState>) => {
+    const next = { ...readUiState(), ...patch };
     setUi(next);
     writeUiState(next);
-  }, []);
-
-  useEffect(() => {
-    setUi(readUiState());
-    setReady(true);
   }, []);
 
   useEffect(() => {
@@ -117,15 +112,20 @@ export function ClientAgent() {
   }, [hidden]);
 
   useEffect(() => {
-    if (!ready || hidden || ui.greeted || ui.interacted) {
+    if (hidden) {
       return;
     }
     const timer = window.setTimeout(() => {
+      const stored = readUiState();
+      if (stored.greeted || stored.interacted) {
+        setUi(stored);
+        return;
+      }
       setGreetingOpen(true);
-      persistUi({ ...ui, greeted: true });
+      persistUi({ greeted: true });
     }, CLIENT_AGENT_GREETING_DELAY_MS);
     return () => window.clearTimeout(timer);
-  }, [hidden, persistUi, ready, ui]);
+  }, [hidden, persistUi]);
 
   useEffect(() => {
     if (!open) {
@@ -192,7 +192,7 @@ export function ClientAgent() {
   }
 
   function toggle() {
-    persistUi({ ...ui, greeted: true, interacted: true });
+    persistUi({ greeted: true, interacted: true });
     setGreetingOpen(false);
     setOpen((prev) => {
       const next = !prev;

@@ -27,6 +27,7 @@ export function HeroCharacter({
         width={1024}
         height={1024}
         priority={priority}
+        loading={priority ? "eager" : "lazy"}
         sizes="(max-width: 1023px) 80vw, 420px"
         className="h-auto w-full [mask-image:radial-gradient(circle_at_50%_42%,black_68%,transparent_84%)]"
       />

@@ -117,7 +117,7 @@ def run_agent(
         selected_agent=result.get("selected_agent"),
         status_events=list(result.get("status_events") or []),
         final_response=str(result.get("final_response") or ""),
-        tool_calls=list(result.get("tool_calls") or []),
+        tool_calls=[dict(call) for call in (result.get("tool_calls") or [])],
         error=result.get("error"),
     )
 
