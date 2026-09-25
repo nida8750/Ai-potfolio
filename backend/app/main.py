@@ -47,6 +47,18 @@ async def app_error_handler(_request: Request, exc: AppError) -> JSONResponse:
     return JSONResponse(status_code=exc.status_code, content=exc.to_body())
 
 
+@app.get("/")
+def root() -> dict:
+    return ok(
+        {
+            "service": settings.app_name,
+            "docs": "/docs",
+            "health": "/health",
+            "api": "/api/v1/health",
+        }
+    )
+
+
 @app.get("/health")
 def health() -> dict:
     return ok(health_payload())
