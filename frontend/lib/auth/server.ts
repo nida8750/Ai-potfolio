@@ -1,5 +1,12 @@
 import "server-only";
-import { activeAuthProvider, env, isCognitoConfigured, isSupabaseConfigured } from "@/lib/env";
+import {
+  activeAuthProvider,
+  isCognitoConfigured,
+  isDesignatedAdmin,
+  isSmtpConfigured,
+  isSupabaseConfigured,
+} from "@/lib/env";
+import { sendResetEmail, sendVerificationEmail } from "@/lib/mail/smtp";
 import {
   cognitoConfirm,
   cognitoConfirmForgotPassword,
@@ -16,7 +23,10 @@ import { logEvent } from "@/lib/security/logger";
 import {
   supabaseAuthUser,
   supabaseConfirm,
-  supabaseForgotPassword,
+  supabaseEmailConfirmed,
+  supabaseIssueResetCodeForEmail,
+  supabaseIssueVerifyCode,
+  supabaseIssueVerifyCodeForEmail,
   supabaseLogin,
   supabaseResetPassword,
   supabaseSignOut,
@@ -39,11 +49,12 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     if (!profile || profile.status !== "active") {
       return null;
     }
+    const resolved = await ensureDesignatedAdmin(profile);
     return {
-      id: profile.id,
-      email: profile.email,
-      name: profile.name,
-      role: profile.role,
+      id: resolved.id,
+      email: resolved.email,
+      name: resolved.name,
+      role: resolved.role,
     };
   }
 
@@ -55,11 +66,12 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   if (!profile || profile.status !== "active") {
     return null;
   }
+  const resolved = await ensureDesignatedAdmin(profile);
   return {
-    id: profile.id,
-    email: profile.email,
-    name: profile.name,
-    role: profile.role,
+    id: resolved.id,
+    email: resolved.email,
+    name: resolved.name,
+    role: resolved.role,
   };
 }
 
@@ -74,10 +86,30 @@ export async function requireAuth(): Promise<AuthUser> {
 export async function requireAdmin(): Promise<AuthUser> {
   const user = await requireAuth();
   const profile = await repository.getUser(user.id);
-  if (!profile || profile.role !== "ADMIN") {
+  if (!profile) {
     throw new AuthError("Admin access required.", "FORBIDDEN", 403);
   }
-  return { ...user, role: profile.role };
+  const resolved = await ensureDesignatedAdmin(profile);
+  if (resolved.role !== "ADMIN") {
+    throw new AuthError("Admin access required.", "FORBIDDEN", 403);
+  }
+  return { ...user, role: resolved.role };
+}
+
+async function ensureDesignatedAdmin(profile: UserProfile): Promise<UserProfile> {
+  if (!isDesignatedAdmin(profile.email)) {
+    return profile;
+  }
+  if (profile.role === "ADMIN" && profile.status === "active") {
+    return profile;
+  }
+  return (
+    (await repository.updateUser(profile.id, { role: "ADMIN", status: "active" })) ?? {
+      ...profile,
+      role: "ADMIN",
+      status: "active",
+    }
+  );
 }
 
 async function ensureProfile(input: {
@@ -92,7 +124,26 @@ async function ensureProfile(input: {
     (input.id ? await repository.getUser(input.id) : undefined) ??
     (await repository.getUserByEmail(input.email));
   if (existing) {
-    return existing;
+    if (!isDesignatedAdmin(existing.email) && !isDesignatedAdmin(input.email)) {
+      return existing;
+    }
+    const patch: Partial<UserProfile> = {};
+    if (existing.role !== "ADMIN") {
+      patch.role = "ADMIN";
+    }
+    if (existing.status !== "active") {
+      patch.status = "active";
+    }
+    if (input.name && existing.name !== input.name) {
+      patch.name = input.name;
+    }
+    if (input.phone && existing.phone !== input.phone) {
+      patch.phone = input.phone;
+    }
+    if (Object.keys(patch).length === 0) {
+      return existing;
+    }
+    return (await repository.updateUser(existing.id, patch)) ?? { ...existing, ...patch };
   }
   return repository.createUser({
     id: input.id ?? input.supabaseUserId ?? crypto.randomUUID(),
@@ -101,9 +152,46 @@ async function ensureProfile(input: {
     phone: input.phone,
     cognitoSub: input.cognitoSub,
     supabaseUserId: input.supabaseUserId,
-    role: await nextUserRole(),
+    role: await nextUserRole(input.email),
     status: "active",
   });
+}
+
+async function requireSmtpSend(
+  send: () => Promise<void>,
+  failedMessage: string,
+): Promise<void> {
+  if (!isSmtpConfigured()) {
+    throw new AuthError(
+      "SMTP is not configured. Set SMTP_HOST, SMTP_USER, and SMTP_PASSWORD.",
+      "SMTP_NOT_CONFIGURED",
+      503,
+    );
+  }
+  try {
+    await send();
+  } catch (error) {
+    const detail = error instanceof Error ? error.message.trim() : "";
+    throw new AuthError(
+      detail && detail.length < 180 ? `${failedMessage} ${detail}` : failedMessage,
+      "SMTP_SEND_FAILED",
+      502,
+    );
+  }
+}
+
+async function sendVerificationCode(email: string, code: string): Promise<void> {
+  await requireSmtpSend(
+    () => sendVerificationEmail({ to: email, code }),
+    "The verification email could not be sent. Check SMTP_USER and SMTP_PASSWORD.",
+  );
+}
+
+async function sendResetCode(email: string, code: string): Promise<void> {
+  await requireSmtpSend(
+    () => sendResetEmail({ to: email, code }),
+    "The reset email could not be sent. Check SMTP_USER and SMTP_PASSWORD.",
+  );
 }
 
 export async function signUp(input: {
@@ -113,7 +201,19 @@ export async function signUp(input: {
   phone?: string;
 }): Promise<{ confirmationRequired: boolean; devCode?: string }> {
   const email = input.email.toLowerCase();
-  if (await repository.getUserByEmail(email)) {
+  const existing = await repository.getUserByEmail(email);
+  if (existing) {
+    if (isSupabaseConfigured()) {
+      const confirmed = await supabaseEmailConfirmed(
+        existing.supabaseUserId ?? existing.id,
+      );
+      if (confirmed) {
+        throw new AuthError("An account with this email already exists.", "EMAIL_TAKEN", 409);
+      }
+      const code = await supabaseIssueVerifyCode(existing.supabaseUserId ?? existing.id);
+      await sendVerificationCode(email, code);
+      return { confirmationRequired: true };
+    }
     throw new AuthError("An account with this email already exists.", "EMAIL_TAKEN", 409);
   }
 
@@ -132,7 +232,9 @@ export async function signUp(input: {
       supabaseUserId: created.userId,
     });
     logEvent({ action: "auth.signup", result: "ok", userId: created.userId });
-    return { confirmationRequired: created.confirmationRequired };
+    const code = await supabaseIssueVerifyCode(created.userId);
+    await sendVerificationCode(email, code);
+    return { confirmationRequired: true };
   }
 
   if (isCognitoConfigured()) {
@@ -160,7 +262,8 @@ export async function signUp(input: {
     verificationHash: hashValue(code),
   });
   logEvent({ action: "auth.signup", result: "ok", userId: profile.id });
-  return { confirmationRequired: true, devCode: code };
+  await sendVerificationCode(email, code);
+  return { confirmationRequired: true };
 }
 
 export async function verifyEmail(email: string, code: string): Promise<void> {
@@ -178,6 +281,27 @@ export async function verifyEmail(email: string, code: string): Promise<void> {
     throw new AuthError("Verification code is invalid.", "INVALID_CODE");
   }
   await repository.putCredential({ ...credential, verified: true, verificationHash: undefined });
+}
+
+export async function signInAdmin(email: string, password: string): Promise<AuthUser> {
+  if (!isDesignatedAdmin(email)) {
+    throw new AuthError("Admin sign-in requires the admin Gmail and password.", "FORBIDDEN", 403);
+  }
+  const user = await signIn(email, password);
+  if (user.role === "ADMIN") {
+    return user;
+  }
+  const promoted = await repository.updateUser(user.id, { role: "ADMIN", status: "active" });
+  if (promoted?.role === "ADMIN") {
+    return {
+      id: promoted.id,
+      email: promoted.email,
+      name: promoted.name,
+      role: "ADMIN",
+    };
+  }
+  await signOutUser();
+  throw new AuthError("This account is not an administrator.", "FORBIDDEN", 403);
 }
 
 export async function signIn(email: string, password: string): Promise<AuthUser> {
@@ -226,10 +350,42 @@ export async function signOutUser(): Promise<void> {
   await clearSession();
 }
 
+export async function resendVerification(email: string): Promise<{ devCode?: string }> {
+  const normalized = email.toLowerCase();
+
+  if (isSupabaseConfigured()) {
+    const code = await supabaseIssueVerifyCodeForEmail(normalized);
+    if (!code) {
+      return {};
+    }
+    await sendVerificationCode(normalized, code);
+    return {};
+  }
+  if (isCognitoConfigured()) {
+    return {};
+  }
+
+  const credential = await repository.getCredential(normalized);
+  if (!credential || credential.verified) {
+    return {};
+  }
+  const code = createCode();
+  await repository.putCredential({
+    ...credential,
+    verificationHash: hashValue(code),
+  });
+  await sendVerificationCode(normalized, code);
+  return {};
+}
+
 export async function forgotPassword(email: string): Promise<{ devCode?: string }> {
   const normalized = email.toLowerCase();
   if (isSupabaseConfigured()) {
-    await supabaseForgotPassword(normalized, `${env.appUrl}/reset-password`);
+    const code = await supabaseIssueResetCodeForEmail(normalized);
+    if (!code) {
+      return {};
+    }
+    await sendResetCode(normalized, code);
     return {};
   }
   if (isCognitoConfigured()) {
@@ -246,7 +402,8 @@ export async function forgotPassword(email: string): Promise<{ devCode?: string 
     resetHash: hashValue(code),
     resetExpiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
   });
-  return { devCode: code };
+  await sendResetCode(normalized, code);
+  return {};
 }
 
 export async function resetPassword(email: string, code: string, password: string): Promise<void> {

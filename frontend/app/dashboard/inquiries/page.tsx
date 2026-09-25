@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -32,20 +33,25 @@ export default async function DashboardInquiriesPage() {
         <ul className="space-y-3">
           {inquiries.map((inquiry) => (
             <li key={inquiry.id}>
-              <GlassCard className="p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground">
-                      {inquiry.subject ?? "Inquiry"}
-                    </p>
-                    <p className="text-xs text-muted">
-                      {shortId(inquiry.id)} · {formatDate(inquiry.createdAt)}
-                    </p>
+              <Link href={`/dashboard/inquiries/${inquiry.id}`} className="block">
+                <GlassCard className="p-4 transition-colors hover:border-primary/40">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground">
+                        {inquiry.subject ?? "Inquiry"}
+                      </p>
+                      <p className="text-xs text-muted">
+                        {shortId(inquiry.id)} · {formatDate(inquiry.createdAt)}
+                      </p>
+                    </div>
+                    <StatusBadge status={inquiry.status} />
                   </div>
-                  <StatusBadge status={inquiry.status} />
-                </div>
-                <p className="mt-3 text-sm leading-6 text-muted">{inquiry.message}</p>
-              </GlassCard>
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted">
+                    {inquiry.message}
+                  </p>
+                  <p className="mt-3 text-xs text-accent">View details</p>
+                </GlassCard>
+              </Link>
             </li>
           ))}
         </ul>

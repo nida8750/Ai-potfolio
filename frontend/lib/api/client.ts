@@ -56,3 +56,10 @@ export function errorMessage(error: unknown): string {
   }
   return "Something went wrong. Please try again.";
 }
+
+export function errorCode(error: unknown): string | undefined {
+  if (error instanceof ApiRequestError) {
+    return error.code;
+  }
+  return undefined;
+}

@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
-import { hireCta, navigation } from "@/data/navigation";
+import { accountCta, adminCta, hireCta, navigation } from "@/data/navigation";
 import { Button } from "@/components/ui/Button";
 import { SITE_NAME } from "@/lib/constants";
 
@@ -23,9 +23,15 @@ interface MobileMenuProps {
   open: boolean;
   onClose: () => void;
   menuId: string;
+  showAdmin?: boolean;
 }
 
-export function MobileMenu({ open, onClose, menuId }: MobileMenuProps) {
+export function MobileMenu({
+  open,
+  onClose,
+  menuId,
+  showAdmin = true,
+}: MobileMenuProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
   const isClient = useSyncExternalStore(
@@ -143,7 +149,27 @@ export function MobileMenu({ open, onClose, menuId }: MobileMenuProps) {
             </li>
           ))}
         </ul>
-        <div className="mt-10">
+        <div className="mt-10 space-y-3">
+          <Button
+            href={accountCta.href}
+            variant="secondary"
+            size="lg"
+            className="w-full"
+            onClick={onClose}
+          >
+            {accountCta.label}
+          </Button>
+          {showAdmin ? (
+            <Button
+              href={adminCta.href}
+              variant="secondary"
+              size="lg"
+              className="w-full"
+              onClick={onClose}
+            >
+              {adminCta.label}
+            </Button>
+          ) : null}
           <Button href={hireCta.href} size="lg" className="w-full" onClick={onClose}>
             {hireCta.label}
           </Button>

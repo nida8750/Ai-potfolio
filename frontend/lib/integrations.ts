@@ -4,6 +4,7 @@ import {
   activeStorageProvider,
   isDatabaseUrlConfigured,
   isN8nConfigured,
+  isSmtpConfigured,
   isSupabaseConfigured,
   missingSupabaseEnv,
 } from "@/lib/env";
@@ -50,6 +51,7 @@ export function integrationRows(): Array<[string, string]> {
     ["File storage", storageLabel()],
     ["Automation", isN8nConfigured() ? "n8n webhooks" : "Not configured"],
     ["Payments", payments.length ? payments.join(", ") : "Not configured"],
+    ["Email (SMTP)", isSmtpConfigured() ? "Configured" : "Not configured"],
     ["FastAPI", "Checked live at /api/health"],
   ];
 }
@@ -65,6 +67,7 @@ export function integrationStatus() {
     cognito: activeAuthProvider() === "cognito",
     s3: activeStorageProvider() === "s3",
     n8n: isN8nConfigured(),
+    smtp: isSmtpConfigured(),
     paymentProviders: configuredProviders(),
   };
 }

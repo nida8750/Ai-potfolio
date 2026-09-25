@@ -14,3 +14,13 @@ export const hireCta: NavItem = {
   label: "Hire Me",
   href: "#contact",
 };
+
+export const accountCta: NavItem = {
+  label: "Sign in",
+  href: "/login",
+};
+
+export const adminCta: NavItem = {
+  label: "Admin",
+  href: "/admin-login",
+};

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { AppShell } from "@/components/app/AppShell";
-import { requireAuthOrRedirect } from "@/lib/auth/guards";
+import { requireAdminOrRedirect } from "@/lib/auth/guards";
 
 export const metadata: Metadata = {
   title: "Dashboard | Nida AI",
@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 
 const navItems = [
   { label: "Overview", href: "/dashboard" },
+  { label: "Supabase", href: "/dashboard/platform" },
   { label: "AI platform", href: "/dashboard/ai" },
   { label: "Orders", href: "/dashboard/orders" },
   { label: "Inquiries", href: "/dashboard/inquiries" },
@@ -23,18 +24,14 @@ export default async function DashboardLayout({
 }) {
   // Server-side gate: the proxy redirect is a convenience, this is the check
   // that actually protects the page.
-  const user = await requireAuthOrRedirect("/dashboard");
+  const user = await requireAdminOrRedirect("/dashboard");
 
   return (
     <AppShell
       kind="dashboard"
       userName={user.name}
-      userRole={user.role === "ADMIN" ? "Administrator" : "Customer"}
-      navItems={
-        user.role === "ADMIN"
-          ? [...navItems, { label: "Admin console", href: "/admin" }]
-          : navItems
-      }
+      userRole="Administrator"
+      navItems={[...navItems, { label: "Admin console", href: "/admin" }]}
     >
       {children}
     </AppShell>

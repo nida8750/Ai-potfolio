@@ -67,9 +67,11 @@ export const CLIENT_AGENT_HIDDEN_PREFIXES = [
   "/dashboard",
   "/admin",
   "/login",
+  "/admin-login",
   "/signup",
   "/forgot-password",
   "/reset-password",
+  "/auth",
 ] as const;
 
 export function isClientAgentHiddenPath(pathname: string): boolean {

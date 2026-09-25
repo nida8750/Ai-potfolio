@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/app/PageHeader";
 import { SettingsForm } from "@/components/admin/SettingsForm";
+import { SupabaseConsoleCard } from "@/components/admin/SupabaseConsoleCard";
 import { Alert } from "@/components/ui/Alert";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { requireAdminOrRedirect } from "@/lib/auth/guards";
@@ -18,6 +19,8 @@ export default async function AdminSettingsPage() {
         title="Settings"
         description="Platform defaults. Credentials themselves are supplied by the environment, never edited here."
       />
+
+      <SupabaseConsoleCard />
 
       <GlassCard className="p-5 md:p-6">
         <SettingsForm

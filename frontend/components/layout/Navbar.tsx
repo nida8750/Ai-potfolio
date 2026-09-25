@@ -2,14 +2,18 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Menu, Sparkles, X } from "lucide-react";
-import { hireCta, navigation } from "@/data/navigation";
+import { accountCta, adminCta, hireCta, navigation } from "@/data/navigation";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { SITE_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-export function Navbar() {
+interface NavbarProps {
+  showAdmin?: boolean;
+}
+
+export function Navbar({ showAdmin = true }: NavbarProps) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeHref, setActiveHref] = useState("#home");
@@ -112,6 +116,20 @@ export function Navbar() {
           </ul>
         </nav>
         <div className="flex items-center justify-self-end gap-2">
+          <a
+            href={accountCta.href}
+            className="hidden text-sm text-muted hover:text-foreground lg:inline-flex"
+          >
+            {accountCta.label}
+          </a>
+          {showAdmin ? (
+            <a
+              href={adminCta.href}
+              className="hidden text-sm text-muted hover:text-foreground lg:inline-flex"
+            >
+              {adminCta.label}
+            </a>
+          ) : null}
           <span className="hidden lg:inline-flex">
             <Button href={hireCta.href} size="sm">
               {hireCta.label}
@@ -135,7 +153,12 @@ export function Navbar() {
           </button>
         </div>
       </Container>
-      <MobileMenu open={open} onClose={() => setOpen(false)} menuId={menuId} />
+      <MobileMenu
+        open={open}
+        onClose={() => setOpen(false)}
+        menuId={menuId}
+        showAdmin={showAdmin}
+      />
     </header>
   );
 }

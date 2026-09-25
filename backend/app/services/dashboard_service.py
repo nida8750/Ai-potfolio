@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.config import get_settings
+from app.config import get_settings, is_configured
 from app.db.supabase import get_supabase_admin
 from app.services import agent_service, automation_service, conversation_service, rag_service
 from app.services.conversation_service import _STORE as _CHAT_STORE
@@ -27,6 +27,8 @@ def _empty_overview() -> dict[str, Any]:
         "recent_workflow_runs": [],
         "recent_users": [],
         "notifications": [],
+        "llm": _llm_ops(),
+        "token_usage": _empty_token_usage(),
     }
 
 
@@ -94,6 +96,8 @@ def platform_overview() -> dict[str, Any]:
         "recent_users": _recent_users(),
         # Per-user notifications are filled in user_overview.
         "notifications": [],
+        "llm": _llm_ops(),
+        "token_usage": _collect_token_usage(agent_runs),
     }
 
 
@@ -155,6 +159,8 @@ def user_overview(*, user_id: str) -> dict[str, Any]:
         ],
         "recent_users": [],
         "notifications": _user_notifications(user_id),
+        "llm": _llm_ops(),
+        "token_usage": _sum_token_usage(runs),
     }
 
 
@@ -232,6 +238,88 @@ def _count_knowledge() -> tuple[int, int]:
 
     with rag_store._lock:
         return len(rag_store.knowledge_bases), len(rag_store.documents)
+
+
+def _llm_ops() -> dict[str, Any]:
+    cfg = get_settings()
+    configured = cfg.llm_configured
+    model = cfg.llm_model.strip() if is_configured(cfg.llm_model) else ""
+    return {
+        "configured": configured,
+        "model": (model or "gpt-4o-mini") if configured else None,
+        "provider": "openai" if configured else None,
+        "router": "llm" if configured else "heuristic",
+    }
+
+
+def _empty_token_usage() -> dict[str, int]:
+    return {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "records_with_usage": 0,
+    }
+
+
+def _usage_int(usage: dict[str, Any], *keys: str) -> int:
+    for key in keys:
+        raw = usage.get(key)
+        if isinstance(raw, bool):
+            continue
+        if isinstance(raw, (int, float)) and raw >= 0:
+            return int(raw)
+    return 0
+
+
+def _sum_token_usage(rows: list[dict[str, Any]]) -> dict[str, int]:
+    totals = _empty_token_usage()
+    for row in rows:
+        usage = row.get("token_usage") if isinstance(row, dict) else None
+        if usage is None and isinstance(row, dict):
+            metadata = row.get("metadata")
+            if isinstance(metadata, dict):
+                nested = metadata.get("token_usage") or metadata.get("usage")
+                usage = nested if isinstance(nested, dict) else None
+        if not isinstance(usage, dict):
+            continue
+        prompt = _usage_int(usage, "prompt_tokens", "input_tokens")
+        completion = _usage_int(usage, "completion_tokens", "output_tokens")
+        total = _usage_int(usage, "total_tokens")
+        if total == 0:
+            total = prompt + completion
+        if prompt == 0 and completion == 0 and total == 0:
+            continue
+        totals["prompt_tokens"] += prompt
+        totals["completion_tokens"] += completion
+        totals["total_tokens"] += total
+        totals["records_with_usage"] += 1
+    return totals
+
+
+def _collect_token_usage(agent_runs: list[dict[str, Any]]) -> dict[str, int]:
+    message_rows: list[dict[str, Any]] = []
+    settings = get_settings()
+    if settings.supabase_configured:
+        try:
+            admin = get_supabase_admin()
+            result = (
+                admin.table("messages")
+                .select("token_usage")
+                .not_.is_("token_usage", "null")
+                .limit(2000)
+                .execute()
+            )
+            message_rows = list(result.data or [])
+        except Exception:  # noqa: BLE001
+            pass
+    else:
+        with _CHAT_STORE._lock:
+            for items in _CHAT_STORE.messages.values():
+                message_rows.extend(items)
+    from_messages = _sum_token_usage(message_rows)
+    if from_messages["records_with_usage"] > 0:
+        return from_messages
+    return _sum_token_usage(agent_runs)
 
 
 def _recent_users() -> list[dict[str, Any]]:

@@ -54,6 +54,21 @@ class Settings(BaseSettings):
     backend_port: int = 8000
     frontend_url: str = Field(default="http://localhost:43127")
 
+    @property
+    def cors_origins(self) -> list[str]:
+        """Comma-separated FRONTEND_URL plus the live and local Next.js origins."""
+        seen: list[str] = []
+        extras = (
+            "http://localhost:43127",
+            "http://127.0.0.1:43127",
+            "https://ai-potfolio-khaki.vercel.app",
+        )
+        for raw in (*self.frontend_url.split(","), *extras):
+            origin = raw.strip().rstrip("/")
+            if origin and origin not in seen:
+                seen.append(origin)
+        return seen
+
     supabase_url: str = ""
     supabase_anon_key: str = ""
     supabase_service_role_key: str = ""

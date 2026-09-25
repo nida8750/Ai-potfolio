@@ -5,10 +5,14 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { GlowOrb } from "@/components/ui/GlowOrb";
 import { GridBackground } from "@/components/ui/GridBackground";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { getCurrentUser } from "@/lib/auth/server";
 import { loadPublicServices } from "@/lib/content/public-content";
 
 export async function Services() {
-  const { items: services } = await loadPublicServices();
+  const [{ items: services }, user] = await Promise.all([
+    loadPublicServices(),
+    getCurrentUser(),
+  ]);
   const agentsService = services.find((service) => service.icon === "agents");
 
   return (
@@ -48,7 +52,11 @@ export async function Services() {
                 id={service.id === agentsService?.id ? "agents" : undefined}
                 className="min-w-0"
               >
-                <ServiceCard service={service} index={index} />
+                <ServiceCard
+                  service={service}
+                  index={index}
+                  signedIn={Boolean(user)}
+                />
               </li>
             ))}
           </ul>

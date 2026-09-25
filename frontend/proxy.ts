@@ -9,10 +9,18 @@ import { hasSessionCookie } from "@/lib/auth/cookie";
  */
 export function proxy(request: NextRequest) {
   const hasSession = hasSessionCookie(request.cookies.getAll());
+  const path = request.nextUrl.pathname;
 
   if (!hasSession) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("next", request.nextUrl.pathname);
+    const loginPath =
+      path === "/admin" ||
+      path.startsWith("/admin/") ||
+      path === "/dashboard" ||
+      path.startsWith("/dashboard/")
+        ? "/admin-login"
+        : "/login";
+    const loginUrl = new URL(loginPath, request.url);
+    loginUrl.searchParams.set("next", path);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -20,5 +28,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*"],
+  matcher: ["/dashboard/:path*", "/admin", "/admin/:path*"],
 };

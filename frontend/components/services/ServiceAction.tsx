@@ -10,9 +10,17 @@ interface ServiceActionProps {
   serviceId: string;
   title: string;
   purchasable: boolean;
+  signedIn?: boolean;
 }
 
-export function ServiceAction({ serviceId, title, purchasable }: ServiceActionProps) {
+const SERVICE_LOGIN_HREF = `/login?next=${encodeURIComponent("/#contact")}`;
+
+export function ServiceAction({
+  serviceId,
+  title,
+  purchasable,
+  signedIn = false,
+}: ServiceActionProps) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +28,7 @@ export function ServiceAction({ serviceId, title, purchasable }: ServiceActionPr
   if (!purchasable) {
     return (
       <Button
-        href="#contact"
+        href={signedIn ? "#contact" : SERVICE_LOGIN_HREF}
         variant="secondary"
         size="sm"
         className="mt-4 w-full"
@@ -32,18 +40,23 @@ export function ServiceAction({ serviceId, title, purchasable }: ServiceActionPr
   }
 
   async function order() {
+    if (!signedIn) {
+      router.push(SERVICE_LOGIN_HREF);
+      return;
+    }
+
     setPending(true);
     setError(null);
 
     try {
       // The server derives the amount from the stored service price.
-      const result = await apiRequest<{ order: Order }>("/api/orders", {
+      await apiRequest<{ order: Order }>("/api/orders", {
         json: { serviceId },
       });
-      router.push(`/dashboard/orders/${result.order.id}`);
+      router.push("/#contact");
     } catch (caught) {
       if (caught instanceof ApiRequestError && caught.status === 401) {
-        router.push(`/login?next=${encodeURIComponent("/#services")}`);
+        router.push(SERVICE_LOGIN_HREF);
         return;
       }
       setError(errorMessage(caught));

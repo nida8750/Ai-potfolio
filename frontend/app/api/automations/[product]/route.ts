@@ -4,6 +4,7 @@ import { requireAuth } from "@/lib/auth/server";
 import { isAutomationProductId } from "@/data/automations";
 import { repository } from "@/lib/data/repository";
 import { isN8nConfigured } from "@/lib/env";
+import { onInquiryCreated } from "@/lib/n8n/events";
 import { dispatchAutomationProduct } from "@/lib/n8n/products";
 import { jsonError, jsonSuccess } from "@/lib/security/http";
 
@@ -59,6 +60,7 @@ export async function POST(request: Request, context: RouteContext) {
             source: "service_request",
           });
           inquiryId = inquiry.id;
+          await onInquiryCreated(inquiry);
         }
       }
 

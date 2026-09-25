@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BackButton } from "@/components/app/BackButton";
 import { CaptureOnReturn } from "@/components/app/CaptureOnReturn";
 import { CheckoutButton } from "@/components/app/CheckoutButton";
 import { PageHeader } from "@/components/app/PageHeader";
@@ -48,11 +48,7 @@ export default async function OrderDetailPage({
         description="Payment state is set from the provider's verified confirmation, not from the browser."
       />
 
-      <p className="text-sm">
-        <Link href="/dashboard/orders" className="text-accent hover:text-foreground">
-          ← All orders
-        </Link>
-      </p>
+      <BackButton fallback="/dashboard/orders" label="Back to orders" />
 
       {query.checkout === "complete" &&
       order.paymentProvider === "paypal" &&

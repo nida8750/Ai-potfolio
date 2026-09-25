@@ -42,6 +42,20 @@ export interface KnowledgeBase {
   status?: string;
 }
 
+export interface LlmOps {
+  configured: boolean;
+  model?: string | null;
+  provider?: string | null;
+  router?: string | null;
+}
+
+export interface TokenUsageTotals {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+  records_with_usage: number;
+}
+
 export interface DashboardOverview {
   total_agents: number;
   total_tasks: number;
@@ -54,4 +68,6 @@ export interface DashboardOverview {
   recent_agent_activity: unknown[];
   recent_workflow_runs: unknown[];
   notifications: unknown[];
+  llm?: LlmOps;
+  token_usage?: TokenUsageTotals;
 }

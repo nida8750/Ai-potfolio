@@ -17,7 +17,10 @@ export const signupSchema = z.object({
 
 export const loginSchema = z.object({
   email: emailSchema,
-  password: z.string().min(1).max(128),
+  password: z
+    .string()
+    .min(1, "Enter your password")
+    .max(128, "Password is too long"),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -26,13 +29,21 @@ export const forgotPasswordSchema = z.object({
 
 export const resetPasswordSchema = z.object({
   email: emailSchema,
-  code: z.string().trim().min(4).max(128),
+  code: z
+    .string()
+    .trim()
+    .min(4, "Enter the code from your email")
+    .max(128, "Code is too long"),
   password: passwordSchema,
 });
 
 export const verifyEmailSchema = z.object({
   email: emailSchema,
-  code: z.string().trim().min(4).max(128),
+  code: z
+    .string()
+    .trim()
+    .min(4, "Enter the 6-digit verification code")
+    .max(128, "Code is too long"),
 });
 
 export const profileUpdateSchema = z.object({

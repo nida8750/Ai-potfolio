@@ -39,8 +39,14 @@ export async function POST(request: Request) {
         currency: order.currency,
         serviceTitle: service?.title ?? "Nida AI service",
         customerEmail: order.customerEmail,
-        successUrl: `${env.appUrl}/dashboard/orders/${order.id}?checkout=complete`,
-        cancelUrl: `${env.appUrl}/dashboard/orders/${order.id}?checkout=cancelled`,
+        successUrl:
+          auth.role === "ADMIN"
+            ? `${env.appUrl}/dashboard/orders/${order.id}?checkout=complete`
+            : `${env.appUrl}/?checkout=complete`,
+        cancelUrl:
+          auth.role === "ADMIN"
+            ? `${env.appUrl}/dashboard/orders/${order.id}?checkout=cancelled`
+            : `${env.appUrl}/?checkout=cancelled`,
       });
 
       await repository.updateOrder(order.id, {

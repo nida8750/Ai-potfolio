@@ -1,5 +1,10 @@
 import "server-only";
-import { activeDataStore as resolveStore, isDynamoConfigured, isSupabaseConfigured } from "@/lib/env";
+import {
+  activeDataStore as resolveStore,
+  isDesignatedAdmin,
+  isDynamoConfigured,
+  isSupabaseConfigured,
+} from "@/lib/env";
 import { dynamoRepository } from "@/lib/data/dynamo-repository";
 import { localRepository } from "@/lib/data/local-repository";
 import { supabaseRepository } from "@/lib/data/supabase-repository";
@@ -62,9 +67,8 @@ export function activeDataStore(): "local" | "supabase" | "dynamodb" {
   return resolveStore();
 }
 
-export async function nextUserRole(): Promise<UserRole> {
-  const count = await repository.countUsers();
-  return count === 0 ? "ADMIN" : "USER";
+export async function nextUserRole(email?: string): Promise<UserRole> {
+  return isDesignatedAdmin(email) ? "ADMIN" : "USER";
 }
 
 export const allowedOrderTransitions: Record<OrderStatus, OrderStatus[]> = {

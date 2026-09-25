@@ -14,7 +14,7 @@ export function SignOutButton({ className }: { className?: string }) {
     try {
       await apiRequest("/api/auth/logout", { method: "POST" });
     } finally {
-      router.replace("/login");
+      router.replace("/");
       router.refresh();
     }
   }

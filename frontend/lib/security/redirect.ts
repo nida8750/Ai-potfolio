@@ -15,3 +15,26 @@ export function safeInternalPath(value: string | null, fallback = "/dashboard"):
   }
   return value;
 }
+
+function isAdminAppPath(path: string): boolean {
+  return (
+    path === "/admin" ||
+    path.startsWith("/admin/") ||
+    path === "/dashboard" ||
+    path.startsWith("/dashboard/")
+  );
+}
+
+/** Customers stay on the public site. Only ADMIN may land on dashboard/admin. */
+export function postLoginPath(
+  role: "USER" | "ADMIN",
+  next: string | null,
+  fallback?: string,
+): string {
+  const home = fallback ?? (role === "ADMIN" ? "/dashboard" : "/");
+  const path = safeInternalPath(next, home);
+  if (role !== "ADMIN" && isAdminAppPath(path)) {
+    return "/";
+  }
+  return path;
+}

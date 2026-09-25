@@ -30,6 +30,12 @@ function messageFor(error: unknown): string {
   if (error instanceof ZodError) {
     return error.issues[0]?.message ?? "Check the submitted values.";
   }
+  if (error instanceof Error) {
+    const detail = error.message.trim();
+    if (detail && detail.length < 200 && !detail.includes("\n")) {
+      return detail;
+    }
+  }
   return "Something went wrong. Please try again.";
 }
 

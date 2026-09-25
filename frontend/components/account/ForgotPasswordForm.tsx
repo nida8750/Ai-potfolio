@@ -12,7 +12,6 @@ export function ForgotPasswordForm() {
   const router = useRouter();
   const [status, setStatus] = useState<"idle" | "loading" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
-  const [devCode, setDevCode] = useState<string | null>(null);
   const [email, setEmail] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -23,12 +22,10 @@ export function ForgotPasswordForm() {
     setError(null);
 
     try {
-      const result = await apiRequest<{ accepted: boolean; resetCode?: string }>(
-        "/api/auth/forgot-password",
-        { json: { email: submitted } },
-      );
+      await apiRequest<{ accepted: boolean }>("/api/auth/forgot-password", {
+        json: { email: submitted },
+      });
       setEmail(submitted);
-      setDevCode(result.resetCode ?? null);
       setStatus("sent");
     } catch (caught) {
       setError(errorMessage(caught));
@@ -39,16 +36,10 @@ export function ForgotPasswordForm() {
   if (status === "sent") {
     return (
       <div className="mt-6 space-y-4">
-        {devCode ? (
-          <Alert tone="warning">
-            Email delivery is not connected in this environment, so the reset
-            code is shown here instead of being sent: <strong>{devCode}</strong>
-          </Alert>
-        ) : (
-          <Alert tone="info">
-            If an account exists for {email}, a reset code has been issued.
-          </Alert>
-        )}
+        <Alert tone="info">
+          If an account exists for {email}, a reset code was emailed. Open that
+          message, then continue.
+        </Alert>
         <Button
           className="w-full"
           onClick={() =>

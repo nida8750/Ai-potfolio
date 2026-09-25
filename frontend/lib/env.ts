@@ -155,6 +155,12 @@ export const env = {
     | "stripe"
     | "paypal"
     | "none",
+  smtpHost: read("SMTP_HOST"),
+  smtpPort: Number(read("SMTP_PORT") ?? "587"),
+  smtpSecure: (read("SMTP_SECURE") ?? "false").toLowerCase() === "true",
+  smtpUser: read("SMTP_USER"),
+  smtpPassword: read("SMTP_PASSWORD"),
+  smtpFrom: read("SMTP_FROM"),
 };
 
 export function isProduction(): boolean {
@@ -209,8 +215,41 @@ export function backendBaseUrl(): string {
   return (env.backendUrl ?? "http://127.0.0.1:8000").replace(/\/+$/, "");
 }
 
+/** Where Supabase confirmation and recovery links return after the email click. */
+export function authConfirmUrl(): string {
+  return `${env.appUrl.replace(/\/+$/, "")}/auth/confirm`;
+}
+
 export function isBackendKeyConfigured(): boolean {
   return !isBlankOrPlaceholder(env.internalApiKey);
+}
+
+export function isSmtpConfigured(): boolean {
+  return (
+    !isBlankOrPlaceholder(env.smtpHost) &&
+    !isBlankOrPlaceholder(env.smtpUser) &&
+    !isBlankOrPlaceholder(env.smtpPassword) &&
+    Number.isFinite(env.smtpPort) &&
+    env.smtpPort > 0
+  );
+}
+
+/** Site-owner emails that must always hold the ADMIN role. */
+const DEFAULT_ADMIN_EMAILS = ["nidaasghar8750@gmail.com"];
+
+export function designatedAdminEmails(): string[] {
+  const extra = (read("ADMIN_EMAIL") ?? read("ADMIN_EMAILS") ?? "")
+    .split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean);
+  return [...new Set([...DEFAULT_ADMIN_EMAILS, ...extra])];
+}
+
+export function isDesignatedAdmin(email: string | undefined): boolean {
+  if (!email) {
+    return false;
+  }
+  return designatedAdminEmails().includes(email.trim().toLowerCase());
 }
 
 export function isN8nConfigured(): boolean {

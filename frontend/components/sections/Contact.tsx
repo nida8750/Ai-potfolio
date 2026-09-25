@@ -13,7 +13,6 @@ import {
   CONTACT_PHONE,
   CONTACT_PHONE_HREF,
 } from "@/lib/constants";
-import { isN8nConfigured } from "@/lib/env";
 
 export async function Contact() {
   const { items: services } = await loadPublicServices();
@@ -88,7 +87,6 @@ export async function Contact() {
                 id: service.id,
                 title: service.title,
               }))}
-              automationConfigured={isN8nConfigured()}
             />
           </GlassCard>
 

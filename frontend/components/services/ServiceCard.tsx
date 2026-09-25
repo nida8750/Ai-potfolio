@@ -13,6 +13,7 @@ import type { PublicService } from "@/lib/data/presenters";
 export interface ServiceCardProps {
   service: PublicService;
   index: number;
+  signedIn?: boolean;
 }
 
 export function ServicesIntro({ children }: { children: ReactNode }) {
@@ -38,7 +39,7 @@ function priceLabel(service: PublicService): string | null {
   return service.pricingType === "starting_from" ? `From ${amount}` : amount;
 }
 
-export function ServiceCard({ service, index }: ServiceCardProps) {
+export function ServiceCard({ service, index, signedIn = false }: ServiceCardProps) {
   const reduceMotion = useReducedMotion();
   const headingId = `${service.slug}-title`;
   const price = priceLabel(service);
@@ -88,6 +89,7 @@ export function ServiceCard({ service, index }: ServiceCardProps) {
           serviceId={service.id}
           title={service.title}
           purchasable={service.purchasable}
+          signedIn={signedIn}
         />
       </GlassCard>
     </motion.article>

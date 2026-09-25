@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Syne } from "next/font/google";
 import "./globals.css";
+import { AdminDockButton } from "@/components/app/AdminDockButton";
 import { ClientAgent } from "@/components/client-agent/ClientAgent";
+import { getCurrentUser } from "@/lib/auth/server";
 import {
   PERSON_NAME,
   SITE_DESCRIPTION,
@@ -39,7 +41,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const user = await getCurrentUser();
+
   return (
     <html
       lang="en"
@@ -57,6 +61,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
         {children}
+        {user?.role === "ADMIN" || !user ? <AdminDockButton /> : null}
         <ClientAgent />
       </body>
     </html>

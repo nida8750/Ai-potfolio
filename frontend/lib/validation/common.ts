@@ -1,16 +1,29 @@
 import { z } from "zod";
 import { env } from "@/lib/env";
 
-export const emailSchema = z.string().trim().email().max(254);
-export const nameSchema = z.string().trim().min(2).max(80);
+export const emailSchema = z
+  .string()
+  .trim()
+  .min(1, "Enter your email")
+  .email("Enter a valid email address")
+  .max(254, "Email is too long");
+export const nameSchema = z
+  .string()
+  .trim()
+  .min(2, "Enter your name")
+  .max(80, "Name is too long");
 export const phoneSchema = z
   .string()
   .trim()
-  .max(32)
+  .max(32, "Phone number is too long")
   .regex(/^[0-9+() .\-]*$/, "Enter a valid phone number")
   .optional()
   .or(z.literal(""));
-export const messageSchema = z.string().trim().min(10).max(4000);
+export const messageSchema = z
+  .string()
+  .trim()
+  .min(10, "Write at least 10 characters")
+  .max(4000, "Message is too long");
 export const slugSchema = z
   .string()
   .trim()

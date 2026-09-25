@@ -5,20 +5,23 @@ import type { FormEvent } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Field, SelectInput, TextArea, TextInput } from "@/components/ui/Field";
+import { PhoneInput } from "@/components/ui/PhoneInput";
 import { apiRequest, errorMessage } from "@/lib/api/client";
+import { announceInquiryThanks } from "@/lib/inquiry-thanks";
+import { firstName } from "@/lib/mail/inquiry-reply";
 
 interface ContactFormProps {
   services: Array<{ id: string; title: string }>;
-  automationConfigured: boolean;
 }
 
 interface ContactResult {
   inquiryId: string;
   stored: boolean;
+  replySent: boolean;
   automationConfigured: boolean;
 }
 
-export function ContactForm({ services, automationConfigured }: ContactFormProps) {
+export function ContactForm({ services }: ContactFormProps) {
   const [status, setStatus] = useState<"idle" | "sending">("idle");
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ContactResult | null>(null);
@@ -26,13 +29,14 @@ export function ContactForm({ services, automationConfigured }: ContactFormProps
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
+    const name = String(form.get("name") ?? "");
     setStatus("sending");
     setError(null);
 
     try {
       const response = await apiRequest<ContactResult>("/api/contact", {
         json: {
-          name: String(form.get("name") ?? ""),
+          name,
           email: String(form.get("email") ?? ""),
           phone: String(form.get("phone") ?? ""),
           serviceId: String(form.get("serviceId") ?? ""),
@@ -40,6 +44,11 @@ export function ContactForm({ services, automationConfigured }: ContactFormProps
         },
       });
       setResult(response);
+      announceInquiryThanks({
+        firstName: firstName(name),
+        replySent: response.replySent,
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {
@@ -51,13 +60,17 @@ export function ContactForm({ services, automationConfigured }: ContactFormProps
     return (
       <div className="space-y-4">
         <Alert tone="success">
-          Your inquiry was saved. Reference{" "}
-          <strong>{result.inquiryId.slice(0, 8)}</strong>.
+          Thank you. Your inquiry is saved
+          {result.replySent
+            ? " and a thank-you note is on its way to your email."
+            : "."}{" "}
+          Reference <strong>{result.inquiryId.slice(0, 8)}</strong>.
         </Alert>
         <p className="text-sm leading-6 text-muted">
+          I’ll review what you need and reply with next steps for the service
           {result.automationConfigured
-            ? "A notification workflow has been triggered for this inquiry."
-            : "Email notifications are not connected in this environment, so nothing was emailed. The message is stored and visible in the admin console."}
+            ? ". A notification workflow was also triggered."
+            : "."}
         </p>
         <Button variant="secondary" size="sm" onClick={() => setResult(null)}>
           Send another message
@@ -85,7 +98,7 @@ export function ContactForm({ services, automationConfigured }: ContactFormProps
       </Field>
 
       <Field id="contact-phone" label="Phone" hint="Optional">
-        <TextInput id="contact-phone" name="phone" type="tel" autoComplete="tel" />
+        <PhoneInput id="contact-phone" />
       </Field>
 
       {services.length > 0 ? (
@@ -108,12 +121,6 @@ export function ContactForm({ services, automationConfigured }: ContactFormProps
       <Button type="submit" disabled={status === "sending"}>
         {status === "sending" ? "Sending…" : "Send message"}
       </Button>
-
-      <p className="text-xs leading-5 text-muted">
-        {automationConfigured
-          ? "Your message is stored and forwarded to the notification workflow."
-          : "Your message is stored against a reference. Email delivery is not connected in this environment."}
-      </p>
     </form>
   );
 }

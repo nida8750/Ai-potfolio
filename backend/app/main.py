@@ -21,10 +21,10 @@ app = FastAPI(
     description="Production-oriented backend for the Nida AI portfolio.",
 )
 
-# Tight CORS: only the configured frontend origin.
+# Tight CORS: configured FRONTEND_URL plus the live and local Next.js origins.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=[

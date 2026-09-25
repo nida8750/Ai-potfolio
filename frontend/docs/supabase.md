@@ -72,7 +72,11 @@ for `avatars/{userId}/…`, `projects/…`, and `documents/…`.
 - `lib/supabase/admin.ts` — service-role client for Route Handlers
 - `lib/data/supabase-repository.ts` — same `PlatformRepository` the local and
   Dynamo adapters implement
-- `lib/supabase/auth.ts` — sign-up, verify, sign-in, password reset
+- `lib/supabase/auth.ts` — sign-up, sign-in, and admin confirm after an SMTP code
+- Verification and password-reset codes are minted by the app and emailed
+  through Gmail SMTP (`nidaasghar8750@gmail.com`). Supabase Auth mailer
+  and confirmation links are not used. Turn **Confirm email** off under
+  Authentication → Providers → Email so Supabase does not send its own mail.
 - `lib/supabase/storage.ts` — signed upload and download URLs
 
 Authorization stays in the Route Handlers. The service role is used only after

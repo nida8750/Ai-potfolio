@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { SignupForm } from "@/components/account/SignupForm";
 import { getCurrentUser } from "@/lib/auth/server";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { postLoginPath } from "@/lib/security/redirect";
 
 export const metadata: Metadata = {
   title: "Create an account | Nida AI",
@@ -12,8 +13,9 @@ export const metadata: Metadata = {
 };
 
 export default async function SignupPage() {
-  if (await getCurrentUser()) {
-    redirect("/dashboard");
+  const user = await getCurrentUser();
+  if (user) {
+    redirect(postLoginPath(user.role, null));
   }
 
   return (

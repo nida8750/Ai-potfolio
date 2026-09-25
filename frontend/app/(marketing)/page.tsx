@@ -1,3 +1,4 @@
+import { InquiryThanksBanner } from "@/components/home/InquiryThanksBanner";
 import { About } from "@/components/sections/About";
 import { BusinessAutomation } from "@/components/sections/BusinessAutomation";
 import { Contact } from "@/components/sections/Contact";
@@ -15,6 +16,7 @@ export const revalidate = 300;
 export default function HomePage() {
   return (
     <main id="main">
+      <InquiryThanksBanner />
       <Hero />
       <Services />
       <BusinessAutomation />

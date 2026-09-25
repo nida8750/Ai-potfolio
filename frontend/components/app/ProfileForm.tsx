@@ -6,6 +6,7 @@ import type { FormEvent } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Field, TextInput } from "@/components/ui/Field";
+import { PhoneInput } from "@/components/ui/PhoneInput";
 import { apiRequest, errorMessage } from "@/lib/api/client";
 
 export function ProfileForm({ name, phone }: { name: string; phone: string }) {
@@ -51,13 +52,7 @@ export function ProfileForm({ name, phone }: { name: string; phone: string }) {
       </Field>
 
       <Field id="profile-phone" label="Phone" hint="Optional">
-        <TextInput
-          id="profile-phone"
-          name="phone"
-          type="tel"
-          defaultValue={phone}
-          autoComplete="tel"
-        />
+        <PhoneInput id="profile-phone" defaultValue={phone} />
       </Field>
 
       <Button type="submit" disabled={status === "saving"}>

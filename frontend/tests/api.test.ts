@@ -74,7 +74,10 @@ async function register(as: string): Promise<boolean> {
     return false;
   }
 
-  const code = data(signup.body).verificationCode as string;
+  const code = data(signup.body).verificationCode as string | undefined;
+  if (!code) {
+    return false;
+  }
   await call("/api/auth/verify", { json: { email, code } });
   await call("/api/auth/login", { json: { email, password: "Passw0rd123" }, as });
   return jars.has(as);
@@ -143,6 +146,7 @@ describe("public endpoints", () => {
     assert.equal(result.status, 201);
     assert.equal(data(result.body).stored, true);
     assert.equal(typeof data(result.body).automationConfigured, "boolean");
+    assert.equal(typeof data(result.body).replySent, "boolean");
   });
 
   it("rejects an invalid inquiry", async (t) => {

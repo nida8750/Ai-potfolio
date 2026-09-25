@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BackButton } from "@/components/app/BackButton";
 import { SITE_NAME, TAGLINE } from "@/lib/constants";
 
 export default function AccountLayout({
@@ -16,9 +17,7 @@ export default function AccountLayout({
           >
             {SITE_NAME.toUpperCase()}
           </Link>
-          <Link href="/" className="text-sm text-muted hover:text-foreground">
-            Back to site
-          </Link>
+          <BackButton fallback="/" label="Back to site" />
         </div>
       </header>
       <div className="flex flex-1 items-center justify-center px-4 py-10 md:py-16">

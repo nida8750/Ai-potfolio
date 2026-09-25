@@ -9,7 +9,7 @@ import { serviceInputSchema, serviceUpdateSchema } from "@/lib/validation/servic
 import { projectInputSchema } from "@/lib/validation/project";
 import { contactSchema } from "@/lib/validation/contact";
 import { rateLimit } from "@/lib/security/rate-limit";
-import { safeInternalPath } from "@/lib/security/redirect";
+import { postLoginPath, safeInternalPath } from "@/lib/security/redirect";
 import { sanitizeMultiline, sanitizeText } from "@/lib/security/sanitize";
 
 const SECRET = "whsec_test_secret_value_for_unit_tests";
@@ -187,6 +187,18 @@ describe("project validation", () => {
   });
 });
 
+describe("phone country codes", () => {
+  it("composes an international number and parses it back", async () => {
+    const { composePhone, parsePhone } = await import("@/lib/phone");
+    assert.equal(composePhone("+92", "0306 664 4221"), "+923066644221");
+    assert.equal(composePhone("+92", ""), "");
+    const parsed = parsePhone("+44 7700 900123");
+    assert.equal(parsed.dial, "+44");
+    assert.equal(parsed.national, "7700900123");
+    assert.equal(parsePhone("").dial, "+92");
+  });
+});
+
 describe("contact validation", () => {
   it("requires a real email and a message of usable length", () => {
     assert.equal(
@@ -224,6 +236,19 @@ describe("post-login redirect", () => {
     assert.equal(safeInternalPath("//attacker.test"), "/dashboard");
     assert.equal(safeInternalPath("/\\attacker.test"), "/dashboard");
     assert.equal(safeInternalPath(null), "/dashboard");
+  });
+
+  it("sends customers home instead of dashboard or admin", () => {
+    assert.equal(postLoginPath("USER", null), "/");
+    assert.equal(postLoginPath("USER", "/dashboard"), "/");
+    assert.equal(postLoginPath("USER", "/dashboard/inquiries"), "/");
+    assert.equal(postLoginPath("USER", "/admin"), "/");
+    assert.equal(postLoginPath("USER", "/#contact"), "/#contact");
+  });
+
+  it("lets admins open dashboard after sign-in", () => {
+    assert.equal(postLoginPath("ADMIN", null), "/dashboard");
+    assert.equal(postLoginPath("ADMIN", "/admin/users"), "/admin/users");
   });
 });
 
@@ -280,8 +305,78 @@ describe("client agent page awareness", () => {
     assert.equal(sectionFromHash(""), "home");
     assert.equal(isClientAgentHiddenPath("/dashboard"), true);
     assert.equal(isClientAgentHiddenPath("/login"), true);
+    assert.equal(isClientAgentHiddenPath("/admin-login"), true);
+    assert.equal(isClientAgentHiddenPath("/auth/confirm"), true);
     assert.equal(isClientAgentHiddenPath("/"), false);
     assert.match(suggestionsForSection("contact")[0] ?? "", /start a project/i);
     assert.match(suggestionsForSection("services")[0] ?? "", /service/i);
+  });
+});
+
+describe("auth confirm URL", () => {
+  it("points confirmation emails back at this app", async () => {
+    const { authConfirmUrl } = await import("@/lib/env");
+    assert.equal(authConfirmUrl().endsWith("/auth/confirm"), true);
+  });
+});
+
+describe("app nav active path", () => {
+  it("does not mark Overview current on nested dashboard routes", async () => {
+    const { isActivePath } = await import("@/components/app/AppNav");
+    const hrefs = ["/dashboard", "/dashboard/platform", "/dashboard/inquiries"];
+    assert.equal(isActivePath("/dashboard", "/dashboard", hrefs), true);
+    assert.equal(isActivePath("/dashboard/platform", "/dashboard", hrefs), false);
+    assert.equal(isActivePath("/dashboard/platform", "/dashboard/platform", hrefs), true);
+    assert.equal(
+      isActivePath("/dashboard/inquiries/abc", "/dashboard/inquiries", hrefs),
+      true,
+    );
+  });
+});
+
+describe("inquiry thank-you copy", () => {
+  it("builds a service reply without inventing a reference", async () => {
+    const {
+      firstName,
+      inquiryReplySubject,
+      inquiryReplyText,
+    } = await import("@/lib/mail/inquiry-reply");
+    assert.equal(firstName("Ayesha Khan"), "Ayesha");
+    assert.match(inquiryReplySubject(), /Thank you/i);
+    const text = inquiryReplyText({
+      name: "Ayesha Khan",
+      serviceTitle: "AI Agents",
+      referenceId: "abcd1234-inquiry",
+    });
+    assert.match(text, /Hi Ayesha/);
+    assert.match(text, /AI Agents/);
+    assert.match(text, /abcd1234/);
+    assert.match(text, /RAG knowledge systems/);
+  });
+});
+
+describe("supabase console links", () => {
+  it("points at this project dashboard", async () => {
+    const { supabaseDashboardUrl, supabaseProjectRef } = await import(
+      "@/lib/supabase/console"
+    );
+    assert.equal(supabaseProjectRef(), "wpdslwonqowelbrublju");
+    assert.equal(
+      supabaseDashboardUrl(),
+      "https://supabase.com/dashboard/project/wpdslwonqowelbrublju",
+    );
+    assert.equal(
+      supabaseDashboardUrl("auth/users"),
+      "https://supabase.com/dashboard/project/wpdslwonqowelbrublju/auth/users",
+    );
+  });
+});
+
+describe("designated admin", () => {
+  it("treats the site owner email as ADMIN", async () => {
+    const { isDesignatedAdmin } = await import("@/lib/env");
+    assert.equal(isDesignatedAdmin("nidaasghar8750@gmail.com"), true);
+    assert.equal(isDesignatedAdmin("NidaAsghar8750@gmail.com"), true);
+    assert.equal(isDesignatedAdmin("visitor@company.test"), false);
   });
 });

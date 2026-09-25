@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { SignOutButton } from "@/components/app/SignOutButton";
 import { AppNav } from "@/components/app/AppNav";
+import { BackButton } from "@/components/app/BackButton";
+import { SignOutButton } from "@/components/app/SignOutButton";
 import { SITE_NAME } from "@/lib/constants";
 import type { NavItem } from "@/types/navigation";
 
@@ -49,8 +50,13 @@ export function AppShell({
         </div>
       </div>
 
-      <main id="main" className="min-w-0 px-4 py-6 md:px-8 md:py-10">
-        <div className="mx-auto w-full max-w-[1080px]">{children}</div>
+      <main id="main" className="min-w-0 px-4 py-6 pb-24 md:px-8 md:py-10 md:pb-24">
+        <div className="mx-auto w-full max-w-[1080px]">
+          <div className="mb-4">
+            <BackButton fallback={kind === "admin" ? "/dashboard" : "/"} />
+          </div>
+          {children}
+        </div>
         <div className="mx-auto mt-10 w-full max-w-[1080px] lg:hidden">
           <SignOutButton />
         </div>

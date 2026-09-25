@@ -35,13 +35,13 @@ export async function POST(request: Request) {
 
       logEvent({ requestId, action: "contact.create", result: "ok", userId: user?.id });
 
-      await onInquiryCreated(inquiry);
+      const { replySent } = await onInquiryCreated(inquiry);
 
       return jsonSuccess(
         {
           inquiryId: inquiry.id,
           stored: true,
-          // Reported honestly: without n8n configured nothing is emailed.
+          replySent,
           automationConfigured: isN8nConfigured(),
         },
         201,

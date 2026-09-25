@@ -16,9 +16,12 @@ export async function requireAuthOrRedirect(next: string): Promise<AuthUser> {
 }
 
 export async function requireAdminOrRedirect(next: string): Promise<AuthUser> {
-  const user = await requireAuthOrRedirect(next);
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect(`/admin-login?next=${encodeURIComponent(next)}`);
+  }
   if (user.role !== "ADMIN") {
-    redirect("/dashboard?denied=admin");
+    redirect("/");
   }
   return user;
 }

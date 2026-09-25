@@ -1,6 +1,8 @@
 import "server-only";
 import { dispatchToN8n } from "@/lib/n8n/client";
 import { repository } from "@/lib/data/repository";
+import { isSmtpConfigured } from "@/lib/env";
+import { sendInquiryThankYouEmail } from "@/lib/mail/smtp";
 import { logEvent } from "@/lib/security/logger";
 import type { Inquiry } from "@/types/inquiry";
 import type { Order } from "@/types/order";
@@ -21,14 +23,18 @@ async function notifyAdmins(
   await dispatchToN8n("admin.alert", { type, title, message });
 }
 
-export async function onInquiryCreated(inquiry: Inquiry): Promise<void> {
+export async function onInquiryCreated(
+  inquiry: Inquiry,
+): Promise<{ replySent: boolean }> {
+  const replySent = await sendInquiryReply(inquiry);
+
   try {
     if (inquiry.userId) {
       await repository.createNotification({
         userId: inquiry.userId,
         type: "INQUIRY_RECEIVED",
         title: "Inquiry received",
-        message: `We logged your inquiry (${inquiry.id}).`,
+        message: `Thank you — we logged your inquiry (${inquiry.id}).`,
       });
     }
     await notifyAdmins(
@@ -54,6 +60,36 @@ export async function onInquiryCreated(inquiry: Inquiry): Promise<void> {
     source: inquiry.source,
     createdAt: inquiry.createdAt,
   });
+
+  return { replySent };
+}
+
+async function sendInquiryReply(inquiry: Inquiry): Promise<boolean> {
+  if (!isSmtpConfigured()) {
+    return false;
+  }
+  try {
+    let serviceTitle: string | undefined;
+    if (inquiry.serviceId) {
+      const service = await repository.getService(inquiry.serviceId);
+      serviceTitle = service?.title;
+    }
+    await sendInquiryThankYouEmail({
+      to: inquiry.email,
+      name: inquiry.name,
+      serviceTitle,
+      referenceId: inquiry.id,
+    });
+    logEvent({ action: "mail.inquiry_reply", result: "ok" });
+    return true;
+  } catch (error) {
+    logEvent({
+      action: "mail.inquiry_reply",
+      result: "error",
+      errorCategory: error instanceof Error ? error.name : "unknown",
+    });
+    return false;
+  }
 }
 
 export async function onOrderCreated(order: Order): Promise<void> {
